@@ -1,0 +1,4 @@
+tick_ms,etiqueta,valor
+9902,twdt_timeout_ms,5001
+13001,periodos_perdidos,80
+13001,hueco_victima_ms,8100

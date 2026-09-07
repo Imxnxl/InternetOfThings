@@ -1,0 +1,12 @@
+{
+  "name": "informe-freertos-esp32c6",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Genera la version .docx del informe tecnico a partir de docs/INFORME_TECNICO.md",
+  "scripts": {
+    "informe": "node informe_a_docx.js"
+  },
+  "dependencies": {
+    "docx": "^9.0.0"
+  }
+}

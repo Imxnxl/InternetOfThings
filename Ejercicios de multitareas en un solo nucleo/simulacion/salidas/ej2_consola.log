@@ -1,0 +1,26 @@
+========================================================
+ Simulacion FreeRTOS - ESP32-C6 (nucleo unico)
+ Kernel: FreeRTOS V11.1.0, port MSVC-MingW (1 tarea a la vez)
+ Ejemplo: 2   Duracion: 13 s   Tick: 1000 Hz
+ Preemcion: SI   Time-slicing: SI
+========================================================
+
+I (0) [-            ] SISTEMA: Iniciando sistema de colas en un solo nucleo...
+I (1) [Productor    ] PRODUCTOR: Enviando lectura #1 a la cola...
+W (1) [Consumidor   ] CONSUMIDOR: Dato recibido. ID: 1, Temp: 23.50 C, latencia: 0 ms
+I (2001) [Productor    ] PRODUCTOR: Enviando lectura #2 a la cola...
+W (2001) [Consumidor   ] CONSUMIDOR: Dato recibido. ID: 2, Temp: 24.50 C, latencia: 0 ms
+I (4001) [Productor    ] PRODUCTOR: Enviando lectura #3 a la cola...
+W (4001) [Consumidor   ] CONSUMIDOR: Dato recibido. ID: 3, Temp: 25.50 C, latencia: 0 ms
+I (6001) [Productor    ] PRODUCTOR: Enviando lectura #4 a la cola...
+W (6001) [Consumidor   ] CONSUMIDOR: Dato recibido. ID: 4, Temp: 26.50 C, latencia: 0 ms
+I (8001) [Productor    ] PRODUCTOR: Enviando lectura #5 a la cola...
+W (8001) [Consumidor   ] CONSUMIDOR: Dato recibido. ID: 5, Temp: 22.50 C, latencia: 0 ms
+I (10001) [Productor    ] PRODUCTOR: Enviando lectura #6 a la cola...
+W (10001) [Consumidor   ] CONSUMIDOR: Dato recibido. ID: 6, Temp: 23.50 C, latencia: 0 ms
+I (12001) [Productor    ] PRODUCTOR: Enviando lectura #7 a la cola...
+W (12001) [Consumidor   ] CONSUMIDOR: Dato recibido. ID: 7, Temp: 24.50 C, latencia: 0 ms
+
+=== Fin de la simulacion (13 s) =========================
+
+[traza] 25 cambios de contexto, 0 transiciones de LED, 7 eventos.

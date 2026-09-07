@@ -1,0 +1,26 @@
+# Reglas comunes a todo el repositorio.
+# Cada trabajo puede anadir las suyas en su propia carpeta.
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Node
+node_modules/
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Toolchain compartido (compilador y kernels descargados). Ver el README
+# del trabajo correspondiente para reconstruirlo.
+/tools/

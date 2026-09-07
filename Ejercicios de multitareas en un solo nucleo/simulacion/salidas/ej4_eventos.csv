@@ -1,0 +1,7 @@
+tick_ms,etiqueta,valor
+2001,latencia_preemcion_ticks,0
+4001,latencia_preemcion_ticks,0
+5001,twdt_timeout_ms,5001
+6001,latencia_preemcion_ticks,0
+8001,latencia_preemcion_ticks,0
+10001,latencia_preemcion_ticks,0

@@ -1,0 +1,74 @@
+========================================================
+ Simulacion FreeRTOS - ESP32-C6 (nucleo unico)
+ Kernel: FreeRTOS V11.1.0, port MSVC-MingW (1 tarea a la vez)
+ Ejemplo: 3   Duracion: 20 s   Tick: 1000 Hz
+ Preemcion: SI   Time-slicing: SI
+========================================================
+
+I (0) [-            ] STARVATION: Experimento de inanicion en un nucleo unico.
+I (0) [-            ] STARVATION: Prioridades -> Golosa: 3 | Victima: 2 | Fondo: 1
+I (1) [Golosa       ] STARVATION: FASE A: la tarea de prioridad 3 trabaja y CEDE el nucleo.
+I (1) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+W (1) [Fondo        ] FONDO: Tarea de prioridad 1 viva. Ciclo 1.
+I (251) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (501) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (751) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (1001) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (1001) [Victima      ] VICTIMA: Latido #10 puntual (hueco real 100 ms).
+W (1001) [Fondo        ] FONDO: Tarea de prioridad 1 viva. Ciclo 2.
+I (1251) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (1501) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (1751) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (2001) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (2001) [Victima      ] VICTIMA: Latido #20 puntual (hueco real 100 ms).
+W (2001) [Fondo        ] FONDO: Tarea de prioridad 1 viva. Ciclo 3.
+I (2251) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (2501) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (2751) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (3001) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (3001) [Victima      ] VICTIMA: Latido #30 puntual (hueco real 100 ms).
+W (3001) [Fondo        ] FONDO: Tarea de prioridad 1 viva. Ciclo 4.
+I (3251) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (3501) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (3751) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (4001) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (4001) [Victima      ] VICTIMA: Latido #40 puntual (hueco real 100 ms).
+W (4001) [Fondo        ] FONDO: Tarea de prioridad 1 viva. Ciclo 5.
+I (4251) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (4501) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+I (4751) [Golosa       ] GOLOSA: Trabajo corto hecho, me bloqueo 250 ms.
+E (5001) [Golosa       ] STARVATION: FASE B: entro en bucle de calculo 8000 ms SIN vTaskDelay(). A partir de aqui nadie mas puede ejecutarse.
+
+E (9902) TWDT: Task watchdog got triggered.
+E (9902) TWDT: La tarea Idle lleva 5001 ms sin ejecutarse (limite 5000 ms).
+E (9902) TWDT: En un ESP32-C6 real el chip se REINICIARIA aqui
+E (9902) TWDT: (Guru Meditation Error -> rst:0xc SW_CPU_RESET).
+E (9902) TWDT: La simulacion continua para observar la recuperacion.
+
+I (13001) [Golosa       ] STARVATION: Bucle de calculo terminado (acumulado: 1768226.6650).
+I (13001) [Golosa       ] STARVATION: FASE C: suelto el nucleo. El sistema deberia recuperarse.
+I (13001) [Golosa       ] GOLOSA: De nuevo cediendo el nucleo correctamente.
+E (13001) [Victima      ] VICTIMA: Latido #50 tras 8100 ms (esperado 100 ms) -> 80 periodos perdidos (acumulado: 80)
+W (13001) [Fondo        ] FONDO: Tarea de prioridad 1 viva. Ciclo 6.
+I (14001) [Golosa       ] GOLOSA: De nuevo cediendo el nucleo correctamente.
+I (14001) [Victima      ] VICTIMA: Latido #60 puntual (hueco real 100 ms).
+W (14001) [Fondo        ] FONDO: Tarea de prioridad 1 viva. Ciclo 7.
+I (15001) [Golosa       ] GOLOSA: De nuevo cediendo el nucleo correctamente.
+I (15001) [Victima      ] VICTIMA: Latido #70 puntual (hueco real 100 ms).
+W (15001) [Fondo        ] FONDO: Tarea de prioridad 1 viva. Ciclo 8.
+I (16001) [Golosa       ] GOLOSA: De nuevo cediendo el nucleo correctamente.
+I (16001) [Victima      ] VICTIMA: Latido #80 puntual (hueco real 100 ms).
+W (16001) [Fondo        ] FONDO: Tarea de prioridad 1 viva. Ciclo 9.
+I (17001) [Golosa       ] GOLOSA: De nuevo cediendo el nucleo correctamente.
+I (17001) [Victima      ] VICTIMA: Latido #90 puntual (hueco real 100 ms).
+W (17001) [Fondo        ] FONDO: Tarea de prioridad 1 viva. Ciclo 10.
+I (18001) [Golosa       ] GOLOSA: De nuevo cediendo el nucleo correctamente.
+I (18001) [Victima      ] VICTIMA: Latido #100 puntual (hueco real 100 ms).
+W (18001) [Fondo        ] FONDO: Tarea de prioridad 1 viva. Ciclo 11.
+I (19001) [Golosa       ] GOLOSA: De nuevo cediendo el nucleo correctamente.
+I (19001) [Victima      ] VICTIMA: Latido #110 puntual (hueco real 100 ms).
+W (19001) [Fondo        ] FONDO: Tarea de prioridad 1 viva. Ciclo 12.
+
+=== Fin de la simulacion (20 s) =========================
+
+[traza] 292 cambios de contexto, 0 transiciones de LED, 3 eventos.

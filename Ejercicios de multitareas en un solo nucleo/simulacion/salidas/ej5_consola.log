@@ -1,0 +1,30 @@
+========================================================
+ Simulacion FreeRTOS - ESP32-C6 (nucleo unico)
+ Kernel: FreeRTOS V11.1.0, port MSVC-MingW (1 tarea a la vez)
+ Ejemplo: 5   Duracion: 6 s   Tick: 1000 Hz
+ Preemcion: SI   Time-slicing: SI
+========================================================
+
+I (0) [-            ] TURNOS: Dos tareas de IGUAL prioridad (2) compiten sin bloquearse nunca.
+I (0) [-            ] TURNOS: Si el reparto por turnos funciona, las dos deben avanzar al 50%.
+I (1001) [TrabajoA     ] TRABAJO_A: Vueltas -> A: 40680 | B: 40402 | reparto A/B: 50% / 50%
+I (1002) [TrabajoB     ] TRABAJO_B: Vueltas -> A: 40742 | B: 40403 | reparto A/B: 50% / 50%
+I (2001) [TrabajoA     ] TRABAJO_A: Vueltas -> A: 81365 | B: 81184 | reparto A/B: 50% / 50%
+I (2002) [TrabajoB     ] TRABAJO_B: Vueltas -> A: 81433 | B: 81185 | reparto A/B: 50% / 50%
+I (3001) [TrabajoA     ] TRABAJO_A: Vueltas -> A: 122887 | B: 122968 | reparto A/B: 49% / 51%
+I (3002) [TrabajoB     ] TRABAJO_B: Vueltas -> A: 122954 | B: 122969 | reparto A/B: 49% / 51%
+I (4001) [TrabajoA     ] TRABAJO_A: Vueltas -> A: 164462 | B: 164178 | reparto A/B: 50% / 50%
+I (4002) [TrabajoB     ] TRABAJO_B: Vueltas -> A: 164520 | B: 164179 | reparto A/B: 50% / 50%
+
+E (5001) TWDT: Task watchdog got triggered.
+E (5001) TWDT: La tarea Idle lleva 5001 ms sin ejecutarse (limite 5000 ms).
+E (5001) TWDT: En un ESP32-C6 real el chip se REINICIARIA aqui
+E (5001) TWDT: (Guru Meditation Error -> rst:0xc SW_CPU_RESET).
+E (5001) TWDT: La simulacion continua para observar la recuperacion.
+
+I (5001) [TrabajoA     ] TRABAJO_A: Vueltas -> A: 204938 | B: 204647 | reparto A/B: 50% / 50%
+I (5002) [TrabajoB     ] TRABAJO_B: Vueltas -> A: 205002 | B: 204648 | reparto A/B: 50% / 50%
+
+=== Fin de la simulacion (6 s) =========================
+
+[traza] 6003 cambios de contexto, 0 transiciones de LED, 1 eventos.

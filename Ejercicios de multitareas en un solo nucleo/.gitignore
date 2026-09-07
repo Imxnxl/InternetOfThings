@@ -1,0 +1,17 @@
+# Dependencias descargadas (compilador MinGW-w64 y kernel de FreeRTOS).
+# Se reconstruyen con las instrucciones del README; no deben versionarse.
+tools/
+
+# Binarios de la simulacion
+simulacion/build/
+
+# PlatformIO
+firmware/.pio/
+firmware/.vscode/
+
+# Dependencias de node para generar el .docx (npm install en scripts/)
+scripts/node_modules/
+scripts/package-lock.json
+
+# El documento de partida no se redistribuye (ver material/LEEME.md)
+material/*.docx

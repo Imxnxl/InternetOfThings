@@ -1,0 +1,13 @@
+{
+  "name": "ejemplos_freertos",
+  "version": "1.0.0",
+  "description": "Ejemplos de planificacion de FreeRTOS sobre un unico nucleo (ESP32-C6). El mismo codigo se compila para la placa con Arduino y para el PC contra el kernel de FreeRTOS.",
+  "keywords": ["freertos", "esp32-c6", "rtos", "planificador", "time-slicing"],
+  "license": "MIT",
+  "frameworks": ["arduino", "espidf", "*"],
+  "platforms": "*",
+  "build": {
+    "srcDir": "src",
+    "includeDir": "src"
+  }
+}

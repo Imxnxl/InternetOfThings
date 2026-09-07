@@ -1,0 +1,25 @@
+========================================================
+ Simulacion FreeRTOS - ESP32-C6 (nucleo unico)
+ Kernel: FreeRTOS V11.1.0, port MSVC-MingW (1 tarea a la vez)
+ Ejemplo: 4   Duracion: 11 s   Tick: 1000 Hz
+ Preemcion: SI   Time-slicing: SI
+========================================================
+
+I (0) [-            ] PRIORIDAD: Comprobando la preemcion por prioridad.
+I (0) [-            ] PRIORIDAD: Calculo(prio 1) satura la CPU; Urgente(prio 5) debe expulsarla.
+W (2001) [Urgente      ] PRIORIDAD: Evento critico #1 atendido. Latencia: 0 ticks (0 ms). La tarea de fondo habia dado 15405 vueltas.
+W (4001) [Urgente      ] PRIORIDAD: Evento critico #2 atendido. Latencia: 0 ticks (0 ms). La tarea de fondo habia dado 15728 vueltas.
+
+E (5001) TWDT: Task watchdog got triggered.
+E (5001) TWDT: La tarea Idle lleva 5001 ms sin ejecutarse (limite 5000 ms).
+E (5001) TWDT: En un ESP32-C6 real el chip se REINICIARIA aqui
+E (5001) TWDT: (Guru Meditation Error -> rst:0xc SW_CPU_RESET).
+E (5001) TWDT: La simulacion continua para observar la recuperacion.
+
+W (6001) [Urgente      ] PRIORIDAD: Evento critico #3 atendido. Latencia: 0 ticks (0 ms). La tarea de fondo habia dado 15827 vueltas.
+W (8001) [Urgente      ] PRIORIDAD: Evento critico #4 atendido. Latencia: 0 ticks (0 ms). La tarea de fondo habia dado 15269 vueltas.
+W (10001) [Urgente      ] PRIORIDAD: Evento critico #5 atendido. Latencia: 0 ticks (0 ms). La tarea de fondo habia dado 15373 vueltas.
+
+=== Fin de la simulacion (11 s) =========================
+
+[traza] 85343 cambios de contexto, 0 transiciones de LED, 6 eventos.

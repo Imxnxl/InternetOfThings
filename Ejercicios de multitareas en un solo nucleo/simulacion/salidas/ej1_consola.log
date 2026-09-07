@@ -1,0 +1,53 @@
+========================================================
+ Simulacion FreeRTOS - ESP32-C6 (nucleo unico)
+ Kernel: FreeRTOS V11.1.0, port MSVC-MingW (1 tarea a la vez)
+ Ejemplo: 1   Duracion: 12 s   Tick: 1000 Hz
+ Preemcion: SI   Time-slicing: SI
+========================================================
+
+I (0) [-            ] SISTEMA: Iniciando configuracion de tareas en el unico nucleo del ESP32-C6...
+I (0) [-            ] SISTEMA: Tareas creadas. El planificador toma el control.
+I (1) [ControlLed   ] GPIO: Pin 8 configurado como salida (LED virtual).
+I (1) [ControlLed   ] TAREA_LED: Led cambiado a: 1
+W (1) [LecturaSensor] TAREA_SENSOR: Leyendo sensor... Muestra #1
+I (1) [Monitor      ] SISTEMA: [Alerta] El sistema sigue vivo y estable.
+I (501) [ControlLed   ] TAREA_LED: Led cambiado a: 0
+W (1001) [LecturaSensor] TAREA_SENSOR: Leyendo sensor... Muestra #2
+I (1001) [ControlLed   ] TAREA_LED: Led cambiado a: 1
+I (1501) [ControlLed   ] TAREA_LED: Led cambiado a: 0
+W (2001) [LecturaSensor] TAREA_SENSOR: Leyendo sensor... Muestra #3
+I (2001) [ControlLed   ] TAREA_LED: Led cambiado a: 1
+I (2501) [ControlLed   ] TAREA_LED: Led cambiado a: 0
+W (3001) [LecturaSensor] TAREA_SENSOR: Leyendo sensor... Muestra #4
+I (3001) [ControlLed   ] TAREA_LED: Led cambiado a: 1
+I (3501) [ControlLed   ] TAREA_LED: Led cambiado a: 0
+W (4001) [LecturaSensor] TAREA_SENSOR: Leyendo sensor... Muestra #5
+I (4001) [ControlLed   ] TAREA_LED: Led cambiado a: 1
+I (4501) [ControlLed   ] TAREA_LED: Led cambiado a: 0
+W (5001) [LecturaSensor] TAREA_SENSOR: Leyendo sensor... Muestra #6
+I (5001) [ControlLed   ] TAREA_LED: Led cambiado a: 1
+I (5001) [Monitor      ] SISTEMA: [Alerta] El sistema sigue vivo y estable.
+I (5501) [ControlLed   ] TAREA_LED: Led cambiado a: 0
+W (6001) [LecturaSensor] TAREA_SENSOR: Leyendo sensor... Muestra #7
+I (6001) [ControlLed   ] TAREA_LED: Led cambiado a: 1
+I (6501) [ControlLed   ] TAREA_LED: Led cambiado a: 0
+W (7001) [LecturaSensor] TAREA_SENSOR: Leyendo sensor... Muestra #8
+I (7001) [ControlLed   ] TAREA_LED: Led cambiado a: 1
+I (7501) [ControlLed   ] TAREA_LED: Led cambiado a: 0
+W (8001) [LecturaSensor] TAREA_SENSOR: Leyendo sensor... Muestra #9
+I (8001) [ControlLed   ] TAREA_LED: Led cambiado a: 1
+I (8501) [ControlLed   ] TAREA_LED: Led cambiado a: 0
+W (9001) [LecturaSensor] TAREA_SENSOR: Leyendo sensor... Muestra #10
+I (9001) [ControlLed   ] TAREA_LED: Led cambiado a: 1
+I (9501) [ControlLed   ] TAREA_LED: Led cambiado a: 0
+W (10001) [LecturaSensor] TAREA_SENSOR: Leyendo sensor... Muestra #11
+I (10001) [ControlLed   ] TAREA_LED: Led cambiado a: 1
+I (10001) [Monitor      ] SISTEMA: [Alerta] El sistema sigue vivo y estable.
+I (10501) [ControlLed   ] TAREA_LED: Led cambiado a: 0
+W (11001) [LecturaSensor] TAREA_SENSOR: Leyendo sensor... Muestra #12
+I (11001) [ControlLed   ] TAREA_LED: Led cambiado a: 1
+I (11501) [ControlLed   ] TAREA_LED: Led cambiado a: 0
+
+=== Fin de la simulacion (12 s) =========================
+
+[traza] 66 cambios de contexto, 25 transiciones de LED, 0 eventos.
