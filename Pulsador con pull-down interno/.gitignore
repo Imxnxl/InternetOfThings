@@ -8,3 +8,6 @@ scripts/package-lock.json
 
 # Ejecutable de la prueba de logica en PC
 pruebas/simulacion_pc.exe
+
+# Ficheros temporales de Word mientras un documento esta abierto
+~$*

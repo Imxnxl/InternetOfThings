@@ -19,7 +19,10 @@ const {
 
 const RAIZ = path.dirname(__dirname);
 const ENTRADA = path.join(RAIZ, "docs", "INFORME_TECNICO.md");
-const SALIDA = path.join(RAIZ, "docs", "Informe_tecnico_Pulsador_pull-down_interno_ESP32-C6.docx");
+// La ruta de salida se puede cambiar con la variable de entorno SALIDA (util si
+// el .docx esta abierto en Word y no se puede sobrescribir).
+const SALIDA = process.env.SALIDA ||
+  path.join(RAIZ, "docs", "Informe_tecnico_Pulsador_pull-down_interno_ESP32-C6.docx");
 
 // Autor que queda en los metadatos del documento. Se puede sobrescribir con
 // la variable de entorno AUTOR.

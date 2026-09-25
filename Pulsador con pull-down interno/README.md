@@ -17,7 +17,7 @@ pinMode(PIN_BOTON, INPUT_PULLDOWN);   // esta práctica: pull-down interno
 
 ## Conexiones
 
-Materiales: ESP32‑C6‑DevKitC‑1, un LED RGB, un pulsador. **Ninguna resistencia.**
+Materiales: una placa ESP32‑C6, un módulo LED RGB y un pulsador. **Ninguna resistencia.**
 
 | Componente | Pata | Pin de la placa |
 |---|---|---|
@@ -29,6 +29,11 @@ Materiales: ESP32‑C6‑DevKitC‑1, un LED RGB, un pulsador. **Ninguna resiste
 | LED RGB | común (la pata más larga) | **GND** si es de cátodo común · **3V3** si es de ánodo común |
 
 ![Conexiones](docs/evidencias/fig3_conexiones.png)
+
+El diagrama muestra la ESP32‑C6‑DevKitC‑1 oficial. La práctica se hizo con un modelo compatible de
+Muse Lab, que tiene los pines en otro orden: conecte siempre por el **número de GPIO** serigrafiado.
+
+<img src="docs/evidencias/foto_led_encendido.jpg" alt="Pulsador presionado: LED encendido en verde" width="360">
 
 - Pulsador de 4 patas: use **dos patas en diagonal**.
 - LED de **ánodo común**: común a 3V3 y `LED_ANODO_COMUN = true` en el código. Si el LED
@@ -48,12 +53,12 @@ Materiales: ESP32‑C6‑DevKitC‑1, un LED RGB, un pulsador. **Ninguna resiste
 4. Como no hay resistencia para el LED, baja la fuerza de salida de sus pines al nivel mínimo
    (~5 mA). Si consigue resistencias de 220–330 Ω, póngalas.
 
-Ejemplo de salida (extracto; los tiempos y los rebotes variarán en cada caso):
+Salida real en la placa (extracto de `docs/evidencias/monitor_arranque.txt` y `monitor_pulsaciones.txt`):
 
 ```
 ==========================================================
  Pulsador con resistencia pull-down INTERNA - ESP32-C6
- ...
+ ESP32-C6 rev 2 | 160 MHz | Arduino-ESP32 3.3.11
 ==========================================================
 Entrada  GPIO18  pinMode INPUT_PULLDOWN
          registros del chip -> pull-down: ACTIVADO | pull-up: no | entrada: si
@@ -63,21 +68,30 @@ Lectura actual de la entrada: 0  (con el pulsador suelto debe ser 0)
 ----------------------------------------------------------
 Prueba del LED: rojo... verde... azul... ok
 Listo. Presione el pulsador.
-[    5234 ms] PRESIONADO -> entrada HIGH, LED encendido | pulsacion #1 | cambios leidos: 1
-[    5501 ms] SUELTO     -> entrada LOW,  LED apagado   | duracion: 267 ms | cambios leidos: 2
+[   34602 ms] PRESIONADO -> entrada HIGH, LED encendido | pulsacion #1 | cambios leidos: 1
+[   34749 ms] SUELTO     -> entrada LOW,  LED apagado   | duracion: 147 ms | cambios leidos: 1
 ```
+
+En las pruebas se registraron 37 pulsaciones, sin ningún evento espurio en reposo y sin rebotes
+detectados (ver la sección 5.2 del informe).
 
 ---
 
 ## Grabarlo en la placa
 
-Conecte el cable al conector de la placa marcado **«USB»**.
+Conecte el cable al conector de la placa marcado **«UART»**. En Windows aparece como
+*USB-Enhanced-SERIAL CH343 (COMx)*.
+
+> Si prefiere el conector **«USB»**: en Arduino IDE ponga *USB CDC On Boot: Enabled*; en PlatformIO
+> cambie `-DARDUINO_USB_CDC_ON_BOOT=0` a `1` en `platformio.ini`. Si no, el programa funciona pero el
+> monitor serie no muestra nada.
 
 ### Con Arduino IDE
 
 1. Instale el core **«esp32» de Espressif Systems, versión 3.x** (Gestor de placas).
 2. Abra `firmware/pulsador_pulldown_interno/pulsador_pulldown_interno.ino`.
-3. Herramientas → Placa: **ESP32C6 Dev Module** · **USB CDC On Boot: Enabled**.
+3. Herramientas → Placa: **ESP32C6 Dev Module** (deje *USB CDC On Boot: Disabled*, que es lo
+   predeterminado) · Puerto: el COM del CH343.
 4. Subir y abrir el Monitor Serie a **115200** baudios.
 
 Para el experimento sin pull-down, cambie `USAR_PULLDOWN_INTERNO` a `0` al principio del código.
@@ -132,6 +146,7 @@ Para regenerar las figuras y el Word:
 
 ```bash
 python scripts/generar_figuras.py          # pip install schemdraw matplotlib
+python scripts/captura_monitor.py          # captura del monitor serie, desde los registros
 cd scripts && npm install && node informe_a_docx.js
 ```
 

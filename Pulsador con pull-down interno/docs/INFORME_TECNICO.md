@@ -89,11 +89,11 @@ En ESP‑IDF puro, sin Arduino, lo mismo se escribe `gpio_pulldown_en(GPIO_NUM_1
 
 | Material | Cantidad | Nota |
 |---|---|---|
-| ESP32‑C6‑DevKitC‑1 | 1 | Cualquier placa con ESP32‑C6 sirve cambiando los pines |
-| LED RGB de 4 patas | 1 | Cátodo común (lo habitual) o ánodo común, configurable |
+| Placa de desarrollo ESP32‑C6 | 1 | Usada: modelo de Muse Lab compatible con la ESP32‑C6‑DevKitC‑1 (mismo chip y conversor CH343, otro orden de pines) |
+| Módulo LED RGB de 4 pines | 1 | Cátodo común; el código admite también ánodo común |
 | Pulsador táctil | 1 | De 2 o 4 patas |
 | Protoboard y cables | — | — |
-| Cable USB‑C | 1 | Al conector «USB» de la placa |
+| Cable USB‑C | 1 | Al conector «UART» de la placa |
 | **Resistencias** | **0** | Ese es el objetivo de la práctica |
 
 ---
@@ -102,7 +102,7 @@ En ESP‑IDF puro, sin Arduino, lo mismo se escribe `gpio_pulldown_en(GPIO_NUM_1
 
 ### 4.1 Asignación de pines
 
-| Señal | GPIO | Conector de la placa | Motivo de la elección |
+| Señal | GPIO | Posición en la DevKitC‑1 | Motivo de la elección |
 |---|---|---|---|
 | Pulsador (entrada) | **GPIO18** | J3, pin 10 | GPIO de uso general, sin función especial en el arranque |
 | LED rojo (salida) | **GPIO19** | J3, pin 9 | Contiguo al anterior |
@@ -121,6 +121,8 @@ Pines descartados a propósito:
 ### 4.2 Montaje
 
 ![Figura 3. Conexiones sobre la ESP32-C6-DevKitC-1](evidencias/fig3_conexiones.png)
+
+La figura muestra la DevKitC‑1 oficial de Espressif. La placa usada en la práctica es un modelo compatible de Muse Lab (ver la foto del montaje en 5.2), con el mismo chip pero los pines en otro orden. Lo que cuenta es el número de GPIO serigrafiado junto a cada pin, no su posición.
 
 Pautas del montaje:
 
@@ -151,7 +153,7 @@ Decisiones de diseño:
 - **1. El LED copia la entrada tal cual.** Como en clase, sin filtrar. El antirrebote de 30 ms se aplica solo al registro por el monitor serie, que así informa de una línea por pulsación en lugar de una por cada rebote del contacto.
 - **2. `loop()` cede el núcleo 1 ms en cada vuelta.** En Arduino‑ESP32, `loop()` es una tarea de FreeRTOS; si no se bloquea nunca, deja sin CPU a la tarea *Idle*, que es precisamente lo que se midió en la práctica de multitareas. Leer cada milisegundo es de sobra para un pulsador: el retardo máximo entre pulsar y encenderse el LED es de 1 ms, imperceptible.
 - **3. El programa comprueba su propia configuración.** Al arrancar no repite lo que cree haber configurado: lee los registros del chip con `gpio_get_io_config()` (ESP‑IDF 5.5.5) e imprime si el pull-down está activado de verdad, junto con la fuerza de salida de los pines del LED.
-- **4. LED sin resistencia: fuerza de salida reducida.** Cada GPIO del C6 tiene cuatro niveles de fuerza de salida; según el manual técnico (campo `FUN_DRV` de `IO_MUX_GPIOn_REG`) son ~5, ~10, ~20 y ~40 mA, y el de por defecto es ~20 mA. Como no se dispone de resistencias, se baja a **~5 mA** (`GPIO_DRIVE_CAP_0`) con `gpio_set_drive_capability()`. Es una limitación nominal, no un limitador de corriente preciso: si se consigue una resistencia de 220–330 Ω por color, conviene ponerla.
+- **4. LED sin resistencia: fuerza de salida reducida.** Cada GPIO del C6 tiene cuatro niveles de fuerza de salida; según el manual técnico (campo `FUN_DRV` de `IO_MUX_GPIOn_REG`) son ~5, ~10, ~20 y ~40 mA, y el de por defecto es ~20 mA. Como no se dispone de resistencias, se baja a **~5 mA** (`GPIO_DRIVE_CAP_0`) con `gpio_set_drive_capability()`. Es una limitación nominal, no un limitador de corriente preciso: si se consigue una resistencia de 220–330 Ω por color, conviene ponerla. El LED usado es un módulo de 4 pines; si trae sus propias resistencias, la fuerza reducida queda como protección adicional.
 - **5. Prueba del LED al arrancar.** Se encienden rojo, verde y azul por turnos. Sirve para comprobar el cableado de los tres canales y si el LED es de ánodo o cátodo común antes de empezar.
 - **6. Experimento sin pull-down incluido.** Con la macro `USAR_PULLDOWN_INTERNO = 0` (entorno `sin_pulldown` de PlatformIO), el pin se configura como `INPUT` a secas, sin ninguna resistencia, para observar una entrada flotante (prueba P7).
 
@@ -161,15 +163,17 @@ El firmware se ha compilado para el ESP32‑C6 con los dos entornos de PlatformI
 
 | Entorno | Resultado | Flash | RAM |
 |---|---|---|---|
-| `pulldown_interno` (la práctica) | Correcto | 277 454 B (21,2 %) | 15 224 B (4,6 %) |
-| `sin_pulldown` (experimento) | Correcto | 277 550 B (21,2 %) | 15 224 B (4,6 %) |
+| `pulldown_interno` (la práctica) | Correcto | 286 114 B (21,8 %) | 15 048 B (4,6 %) |
+| `sin_pulldown` (experimento) | Correcto | 286 212 B (21,8 %) | 15 048 B (4,6 %) |
 
 Entorno: PlatformIO con la plataforma *pioarduino* 55.03.311, core Arduino‑ESP32 **3.3.11** (ESP‑IDF 5.5.5) y GCC 14.2.0 para RISC‑V. El mismo `.ino` se abre sin cambios en Arduino IDE.
 
-Dos problemas encontrados al compilar, documentados en el `README.md` para quien reproduzca la práctica:
+El entorno `pulldown_interno` se grabó en la placa por el puerto **COM5**. `esptool` identificó un **ESP32‑C6 (QFN40), revisión v0.2**, y verificó el *hash* de cada bloque escrito.
 
-- El C6 necesita `ARDUINO_USB_MODE=1` además de `ARDUINO_USB_CDC_ON_BOOT=1` para que `Serial` salga por el USB nativo: su USB es el periférico USB‑Serial/JTAG, no un USB OTG. Sin esa opción el core no compila.
-- En Windows, las librerías del core 3.3.11 contienen rutas de más de 260 caracteres. Hay que activar las rutas largas de Windows o usar un directorio de PlatformIO con ruta corta.
+Dos detalles de configuración, documentados en el `README.md` para quien reproduzca la práctica:
+
+- **Conector de la placa.** La placa tiene dos conectores USB‑C: «UART», a través de un conversor USB‑serie CH343, y «USB», el USB nativo del chip. La práctica usa el «UART», con `ARDUINO_USB_CDC_ON_BOOT=0`, que es la opción por defecto de Arduino IDE. Para usar el «USB» hay que poner `ARDUINO_USB_CDC_ON_BOOT=1`, y el C6 exige además `ARDUINO_USB_MODE=1`: su USB nativo es el periférico USB‑Serial/JTAG, no un USB OTG, y sin esa opción el core no compila.
+- **Rutas largas en Windows.** Las librerías del core 3.3.11 contienen rutas de más de 260 caracteres. Hay que activar las rutas largas de Windows o usar un directorio de PlatformIO con ruta corta.
 
 ---
 
@@ -212,19 +216,34 @@ Esta prueba **no dice nada de la electrónica**: no simula el pull-down, ni tens
 
 ### 5.2 Pruebas en la placa
 
-Protocolo, con el monitor serie abierto a 115200 baudios y la placa conectada por el conector «USB»:
+Protocolo, con el monitor serie abierto a 115200 baudios y la placa conectada por el conector «UART» (COM5). Los registros completos de la placa están en `docs/evidencias/monitor_arranque.txt` y `docs/evidencias/monitor_pulsaciones.txt`.
 
 | # | Prueba | Resultado esperado | Resultado observado |
 |---|---|---|---|
-| P1 | Arranque | La cabecera indica `pull-down: ACTIVADO` y `Lectura actual de la entrada: 0` | *pendiente* |
-| P2 | Prueba del LED | Rojo, verde y azul se encienden por turnos, uno cada vez | *pendiente* |
-| P3 | Pulsador suelto | LED apagado de forma estable, sin líneas nuevas en el monitor | *pendiente* |
-| P4 | Pulsador presionado | LED verde encendido mientras se mantiene; línea `PRESIONADO` | *pendiente* |
-| P5 | 10 pulsaciones seguidas | 10 líneas `PRESIONADO` numeradas del 1 al 10; anotar los `cambios leidos` | *pendiente* |
-| P6 | Mantener 5 s | LED encendido todo el tiempo; `duracion` ≈ 5000 ms | *pendiente* |
+| P1 | Arranque | La cabecera indica `pull-down: ACTIVADO` y `Lectura actual de la entrada: 0` | **Cumple.** `pull-down: ACTIVADO`, `pull-up: no`, entrada `0` |
+| P2 | Prueba del LED | Rojo, verde y azul se encienden por turnos, uno cada vez | Secuencia ejecutada (`rojo... verde... azul... ok`); *colores: pendiente de confirmar a la vista* |
+| P3 | Pulsador suelto | LED apagado de forma estable, sin líneas nuevas en el monitor | **Cumple.** LED apagado (foto); ninguna línea en ningún tramo de reposo, el más largo de 16,1 s |
+| P4 | Pulsador presionado | LED verde encendido mientras se mantiene; línea `PRESIONADO` | **Cumple.** LED encendido en verde al presionar (foto); una línea `PRESIONADO` y su `SUELTO` por pulsación |
+| P5 | 10 pulsaciones seguidas | 10 líneas `PRESIONADO` numeradas del 1 al 10; anotar los `cambios leidos` | **Cumple.** Se hicieron 37, numeradas del 1 al 37 sin saltos; `cambios leidos: 1` en las 74 transiciones |
+| P6 | Mantener 5 s | LED encendido todo el tiempo; `duracion` ≈ 5000 ms | **Cumple.** Pulsación más larga de 4106 ms, con un solo cambio: la entrada no se interrumpió |
 | P7 | Experimento sin pull-down | La cabecera indica `pull-down: no`; comportamiento irregular (ver abajo) | *pendiente* |
 
 **Sobre P5.** `cambios leidos` es el número de veces que el programa vio cambiar la entrada durante una transición: 1 si el contacto fue limpio, más de 1 si rebotó. Como se lee cada milisegundo, los rebotes más breves pueden pasar desapercibidos: el número es una **cota inferior** de los rebotes reales.
+
+Resumen del registro de pulsaciones:
+
+| Magnitud | Valor |
+|---|---|
+| Pulsaciones registradas | 37, numeradas del 1 al 37 sin saltos |
+| Transiciones con rebote detectado | 0 de 74 |
+| Pulsos espurios o descartados | 0 |
+| Reposo más largo sin ningún evento | 16,1 s |
+| Duración de las pulsaciones: mínima / mediana / máxima | 49 / 74 / 4106 ms |
+| Ritmo más rápido | 22 pulsaciones en 3,2 s (6,5 por segundo), todas registradas |
+
+**Lectura.** Con la resistencia pull-down interna, la entrada se comporta en la placa exactamente como con la física: nivel bajo estable en reposo, sin un solo evento que nadie haya provocado, y una pulsación registrada por cada pulsación real, incluso a 6,5 por segundo.
+
+Un resultado que no se esperaba: el pulsador **no mostró rebotes** en ninguna de las 74 transiciones. Eso no demuestra que el contacto no rebote, porque un rebote de menos de 1 ms puede caer entre dos lecturas. Sí demuestra que, con este pulsador y leyendo cada milisegundo, el antirrebote de 30 ms no tuvo nada que filtrar. Tampoco recortó ninguna pulsación: la más corta duró 49 ms, por encima de ese umbral.
 
 **Sobre P7.** Con `pio run -e sin_pulldown -t upload` (o `USAR_PULLDOWN_INTERNO 0` en Arduino IDE) el pin queda sin ninguna resistencia. No hay un resultado único que esperar, y eso es justamente lo que se quiere mostrar. Lo habitual es alguna de estas situaciones:
 
@@ -234,13 +253,13 @@ Protocolo, con el monitor serie abierto a 115200 baudios y la placa conectada po
 
 Evidencias:
 
-![Montaje en la protoboard](evidencias/foto_montaje.jpg)
+![Montaje en la protoboard, vista superior: placa ESP32-C6 alimentada por el conector CH343 (UART), pulsador y módulo LED RGB, sin ninguna resistencia](evidencias/foto_montaje.jpg)
 
-![Pulsador suelto: LED apagado](evidencias/foto_led_apagado.jpg)
+![Prueba P3, pulsador suelto: LED apagado](evidencias/foto_led_apagado.jpg)
 
-![Pulsador presionado: LED encendido](evidencias/foto_led_encendido.jpg)
+![Prueba P4, pulsador presionado: LED encendido en verde](evidencias/foto_led_encendido.jpg)
 
-![Monitor serie: cabecera de configuración y pulsaciones](evidencias/captura_monitor_serie.png)
+![Monitor serie de la placa: cabecera de configuración y pulsaciones (texto literal de los registros, extracto)](evidencias/captura_monitor_serie.png)
 
 ![Experimento sin pull-down: monitor serie](evidencias/captura_sin_pulldown.png)
 
@@ -274,11 +293,12 @@ Para comparar se toma el caso de clase (10 kΩ) y el de esta práctica (45 kΩ t
 ## 7. Conclusiones
 
 1. **La resistencia pull-down interna sustituye a la física sin cambiar el comportamiento del circuito.** Para el programa, el cambio se reduce a una palabra: `INPUT` pasa a ser `INPUT_PULLDOWN`. Para el montaje, desaparece un componente y un cable.
-2. **Esa palabra se traduce en un único bit del hardware.** Siguiendo el código del core Arduino y de ESP‑IDF, `INPUT_PULLDOWN` termina activando el bit `FUN_WPD` del registro `IO_MUX_GPIOn_REG` del pin: conecta una resistencia de ~45 kΩ que ya estaba dentro del chip. El firmware lee ese registro al arrancar para confirmar que el cambio se ha aplicado.
-3. **Eléctricamente, la interna es suficiente para un pulsador junto a la placa.** Deja el pin en milivoltios en reposo, lejos del umbral de 0,825 V, y lo descarga en menos de un microsegundo. Además consume 4,5 veces menos que un pull-down de 10 kΩ mientras se pulsa.
-4. **La física sigue siendo preferible en tres casos:** cables largos o entornos ruidosos, porque la interna es ~4,5 veces más débil; entradas que deben tener un nivel definido desde el encendido, porque la interna solo existe desde `pinMode()`; y circuitos que dependan del valor exacto de la resistencia, porque la interna no tiene tolerancia publicada.
-5. **La misma idea resuelve la falta de resistencia del LED, con límites.** Bajar la fuerza de salida del GPIO a ~5 mA reduce la corriente del LED sin componentes externos. Es una limitación nominal, no un sustituto exacto de la resistencia en serie, y así se indica en el código.
-6. **Sin ninguna resistencia, la entrada deja de ser fiable.** Un pin flotante no tiene un nivel definido (sección 2.1), así que el estado del LED deja de depender solo del pulsador. El experimento P7 permite observarlo en la placa.
+2. **Esa palabra se traduce en un único bit del hardware.** Siguiendo el código del core Arduino y de ESP‑IDF, `INPUT_PULLDOWN` termina activando el bit `FUN_WPD` del registro `IO_MUX_GPIOn_REG` del pin: conecta una resistencia de ~45 kΩ que ya estaba dentro del chip. El firmware lee ese registro al arrancar, y en la placa respondió `pull-down: ACTIVADO`.
+3. **En la placa, la entrada fue estable y fiable.** Se registraron 37 pulsaciones, una por cada pulsación real, sin ningún evento espurio en los tramos de reposo (el más largo, de 16 s) y sin ningún rebote detectado en las 74 transiciones.
+4. **Eléctricamente, la interna es suficiente para un pulsador junto a la placa.** Deja el pin en milivoltios en reposo, lejos del umbral de 0,825 V, y lo descarga en menos de un microsegundo. Además consume 4,5 veces menos que un pull-down de 10 kΩ mientras se pulsa.
+5. **La física sigue siendo preferible en tres casos:** cables largos o entornos ruidosos, porque la interna es ~4,5 veces más débil; entradas que deben tener un nivel definido desde el encendido, porque la interna solo existe desde `pinMode()`; y circuitos que dependan del valor exacto de la resistencia, porque la interna no tiene tolerancia publicada.
+6. **La misma idea resuelve la falta de resistencia del LED, con límites.** Bajar la fuerza de salida del GPIO a ~5 mA reduce la corriente del LED sin componentes externos. Es una limitación nominal, no un sustituto exacto de la resistencia en serie, y así se indica en el código.
+7. **Sin ninguna resistencia, la entrada deja de ser fiable.** Un pin flotante no tiene un nivel definido (sección 2.1), así que el estado del LED deja de depender solo del pulsador. El experimento P7 permite observarlo en la placa.
 
 ---
 
@@ -295,6 +315,7 @@ bash pruebas/ejecutar.sh
 
 # Figuras y versión Word de este informe
 python scripts/generar_figuras.py
+python scripts/captura_monitor.py   # imagen del monitor serie, desde los registros de la placa
 cd scripts && npm install && node informe_a_docx.js
 ```
 
