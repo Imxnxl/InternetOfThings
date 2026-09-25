@@ -1,0 +1,28 @@
+
+==========================================================
+ Pulsador con resistencia pull-down INTERNA - ESP32-C6
+ ESP32-C6 (simulado en PC) rev 0 | 160 MHz | Arduino-ESP32 3.3.11
+==========================================================
+Entrada  GPIO18  pinMode INPUT_PULLDOWN
+         registros del chip -> pull-down: ACTIVADO | pull-up: no | entrada: si
+Salidas  GPIO19 (R)  GPIO20 (G)  GPIO21 (B)  LED de catodo comun
+         registros del chip -> salida: si | fuerza: nivel 0 de 3
+Lectura actual de la entrada: 0  (con el pulsador suelto debe ser 0)
+----------------------------------------------------------
+Prueba del LED: rojo... verde... azul... ok
+Listo. Presione el pulsador.
+[    2001 ms] PRESIONADO -> entrada HIGH, LED encendido | pulsacion #1 | cambios leidos: 1
+[    2401 ms] SUELTO     -> entrada LOW,  LED apagado   | duracion: 400 ms | cambios leidos: 1
+[    4001 ms] PRESIONADO -> entrada HIGH, LED encendido | pulsacion #2 | cambios leidos: 5
+[    4601 ms] SUELTO     -> entrada LOW,  LED apagado   | duracion: 600 ms | cambios leidos: 3
+[    6001 ms] pulso de menos de 30 ms, descartado     | cambios leidos: 2
+[    7001 ms] PRESIONADO -> entrada HIGH, LED encendido | pulsacion #3 | cambios leidos: 1
+[    9001 ms] SUELTO     -> entrada LOW,  LED apagado   | duracion: 2000 ms | cambios leidos: 1
+
+=== Verificacion automatica ===
+Vueltas de loop() simuladas:        8800 (10.0 s)
+LED == entrada en cada vuelta:      SI (0 discrepancias)
+Cambios de la entrada / del LED:    14 / 14
+Retardo maximo entrada -> LED:      700 us (limite: 1000 us)
+Eventos del registro correctos:     7 de 7 (registrados: 7)
+RESULTADO: OK
