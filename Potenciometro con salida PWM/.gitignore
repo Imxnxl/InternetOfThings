@@ -1,0 +1,10 @@
+# PlatformIO
+firmware/.pio/
+firmware/.vscode/
+
+# Dependencias de node para generar el .docx (npm install en scripts/)
+scripts/node_modules/
+scripts/package-lock.json
+
+# Ficheros temporales de Word mientras un documento esta abierto
+~$*
