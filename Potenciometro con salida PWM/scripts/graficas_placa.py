@@ -5,6 +5,7 @@ Lee los registros del monitor serie guardados en docs/evidencias/ y genera:
 
     fig3_barrido.png       Lectura cruda del ADC al girar la perilla (primer programa)
     fig4_calibracion.png   Tension calibrada frente a lectura cruda, con el ajuste lineal
+    fig5_verificacion.png  Ciclo de trabajo con la version final (tension calibrada)
 
 Ademas imprime las cifras que cita el informe (ajuste, tope de la perilla...).
 
@@ -118,11 +119,37 @@ def main():
     fig.savefig(EVID / "fig4_calibracion.png", dpi=DPI, facecolor=SUPERFICIE)
     plt.close(fig)
 
+    # ---------------------------------------------------------------- fig 5
+    texto = (EVID / "monitor_verificacion_calibrado.txt").read_text(encoding="utf-8", errors="replace")
+    pct = [float(p) for p in re.findall(r"pwm_pct:([\d.]+)", texto)]
+    tv = [i * PERIODO_S for i in range(len(pct))]
+    antes = tope_medio / 4095 * 100
+
+    fig, ax = plt.subplots(figsize=(8.6, 3.6))
+    fig.patch.set_facecolor(SUPERFICIE)
+    ax.plot(tv, pct, color=SERIE_1, lw=2)
+    ax.axhline(antes, color=TINTA_2, lw=1.1, ls=(0, (4, 3)))
+    ax.text(tv[-1], antes - 3, f"máximo con la lectura cruda: {antes:.1f} %".replace(".", ","),
+            fontsize=8.8, color=TINTA_2, ha="right", va="top")
+    ax.set_xlim(0, tv[-1])
+    ax.set_ylim(0, 108)
+    ax.set_yticks([0, 25, 50, 75, 100])
+    ax.set_yticklabels(["0 %", "25 %", "50 %", "75 %", "100 %"])
+    ax.set_xlabel("tiempo (s)", fontsize=9, color=TINTA_2)
+    ax.set_title("Ciclo de trabajo del PWM con la versión final (tensión calibrada)",
+                 loc="left", fontsize=10.5, color=TINTA, pad=8)
+    estilo(ax)
+    fig.tight_layout()
+    fig.savefig(EVID / "fig5_verificacion.png", dpi=DPI, facecolor=SUPERFICIE)
+    plt.close(fig)
+
+    print(f"verificacion: {len(pct)} muestras, al 100 %: {sum(1 for p in pct if p >= 100)},"
+          f" minimo {min(pct)} %")
     print(f"barrido: {len(barrido)} muestras ({t[-1]:.0f} s), lectura {min(adc)}..{max(adc)}")
     print(f"tope: {len(tope)} muestras, media {tope_medio:.1f} ({tope_medio / 4095 * 100:.1f} % de 4095)")
     print(f"ajuste: mV = {a:.4f} * lectura {b:+.1f} | R2 = {r2:.5f} | desv. residuos {desv:.1f} mV"
           f" | 4095 -> {a * 4095 + b:.0f} mV")
-    print("   fig3_barrido.png, fig4_calibracion.png")
+    print("   fig3_barrido.png, fig4_calibracion.png, fig5_verificacion.png")
 
 
 if __name__ == "__main__":

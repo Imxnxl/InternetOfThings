@@ -203,8 +203,15 @@ La versión final del programa calcula el ciclo con `analogReadMilliVolts()`, li
 | # | Prueba | Resultado esperado | Resultado observado |
 |---|---|---|---|
 | C1 | Perilla en el tope inferior | `pwm_pct` ≈ 0 %, LED apagado | **Cumple.** `pwm_pct` entre 0,0 y 0,8 % en los 45 s y 10 min grabados en esta posición |
-| C2 | Perilla en el tope superior | `pwm_pct` = 100 %, LED al máximo | *pendiente de medir* |
-| C3 | Giro completo | El brillo recorre de apagado a máximo sin saltos | *pendiente de medir* |
+| C2 | Perilla en el tope superior | `pwm_pct` = 100 %, LED al máximo | **Cumple.** 100,0 % en las 87 muestras tomadas en el tope, con la misma lectura cruda de antes (3429–3437) |
+| C3 | Giro completo | El ciclo recorre de 0 a 100 % sin saltos | **Cumple.** Pasa de forma continua por valores intermedios (6,9 → 36 → 47 → 79 → 100 %) |
+| C4 | Perilla quieta a la mitad | Ciclo estable | **Cumple.** 53,9–54,2 % durante 27 s (cursor a ~1,78 V) |
+
+La verificación se grabó en `monitor_verificacion_calibrado.txt`: un minuto en el que la perilla sube al tope, baja al mínimo, vuelve a subir y se deja a la mitad.
+
+![Figura 5. Ciclo de trabajo con la versión final. La línea discontinua es el máximo que se alcanzaba con la lectura cruda](evidencias/fig5_verificacion.png)
+
+**Lectura.** En la misma posición del tope, con la misma lectura cruda de ~3433, el ciclo de trabajo pasa del **83,8 % al 100 %**. El LED recorre ahora todo su rango de brillo. En la figura 5, toda la parte de la curva por encima de la línea discontinua es brillo que la primera versión no podía dar.
 
 ### 5.5 Ruido del ADC
 
@@ -262,7 +269,7 @@ Antes de montar el potenciómetro, el programa ya estaba cargado y se registraro
 1. **La práctica funciona:** la lectura del potenciómetro con el ADC de 12 bits regula el brillo del LED mediante un PWM de 5 kHz y 12 bits, y el LED responde de forma continua al girar la perilla.
 2. **«12 bits» no significa que 0–3,3 V se conviertan en 0–4095.** En el ESP32‑C6, con la atenuación por defecto de 12 dB, el tope de la perilla (3,31 V) dio **3433 cuentas**. Pasando la lectura cruda al PWM, el LED se queda en el **84 %** de su brillo, y lo mismo ocurre con el `map(…, 0, 4095, 0, 255)` habitual.
 3. **La relación es lineal, con otra escala.** Tensión real = 0,9646 mV × lectura + 1,2 (R² = 0,99997): el valor 4095 equivaldría a ~3,95 V. Suponer 4095 = 3300 mV comete un error de hasta el 16 %.
-4. **La solución es usar la tensión calibrada de fábrica** (`analogReadMilliVolts`) para calcular el ciclo de trabajo. Con ella, el tope de la perilla lleva el PWM al 100 % en cualquier ESP32‑C6.
+4. **La solución es usar la tensión calibrada de fábrica** (`analogReadMilliVolts`) para calcular el ciclo de trabajo. Verificado en la placa: en la misma posición del tope, el PWM pasa del 83,8 % al **100 %**, y el ciclo recorre todo el rango de forma continua. Al usar la calibración propia de cada chip, sirve en cualquier ESP32‑C6.
 5. **El ruido del ADC es de ~1 cuenta (~1 mV) y promediar 16 lecturas lo reduce entre 3 y 4 veces.** Para el LED es invisible (~0,03 % de ciclo por cuenta), así que no hace falta filtrar. Para medir, sí.
 6. **Una entrada analógica sin conectar no se delata:** leyó 18–43 cuentas estables, un valor que parece una perilla al mínimo. Conviene comprobar el montaje girando la perilla, no mirando una sola lectura.
 
@@ -277,7 +284,7 @@ pio device monitor        # 115200 baudios; 'r' = prueba de ruido, 'i' = cabecer
 
 # Figuras y graficas (desde esta carpeta)
 python scripts/generar_figuras.py   # figuras 1 y 2 (explicativas)
-python scripts/graficas_placa.py    # figuras 3 y 4, desde los registros de la placa
+python scripts/graficas_placa.py    # figuras 3, 4 y 5, desde los registros de la placa
 
 # Version Word de este informe
 cd scripts && npm install && node informe_a_docx.js
