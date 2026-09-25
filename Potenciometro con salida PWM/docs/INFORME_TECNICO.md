@@ -244,13 +244,13 @@ Antes de montar el potenciómetro, el programa ya estaba cargado y se registraro
 
 ### 5.7 Evidencias
 
-![Montaje en la protoboard](evidencias/foto_montaje.jpg)
+![Montaje en la protoboard, vista superior: potenciómetro, módulo LED RGB y placa ESP32-C6 conectada por el conector CH343 (UART)](evidencias/foto_montaje.jpg)
 
-![Perilla al mínimo: LED apagado](evidencias/foto_led_minimo.jpg)
+![LED verde encendido, con el brillo regulado por el potenciómetro (primera posición de la perilla)](evidencias/foto_led_encendido_1.jpg)
 
-![Perilla a la mitad: brillo intermedio](evidencias/foto_led_medio.jpg)
+![LED verde encendido, con el brillo regulado por el potenciómetro (segunda posición de la perilla)](evidencias/foto_led_encendido_2.jpg)
 
-![Perilla al máximo: LED a pleno brillo](evidencias/foto_led_maximo.jpg)
+Las dos fotos del LED se tomaron a oscuras con distintas posiciones de la perilla. El teléfono ajusta la exposición automáticamente, así que las fotos no sirven para comparar brillos. Los valores de ciclo de trabajo de cada posición son los medidos en 5.2 y 5.4.
 
 ---
 
