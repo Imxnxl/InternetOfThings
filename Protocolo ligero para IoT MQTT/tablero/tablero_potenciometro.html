@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perilla y LED por MQTT</title>
+<!--
+  tablero_potenciometro.html - Prueba que junta la practica del potenciometro
+  con la de MQTT. Recibe de channels/<canal>/publish la posicion de la perilla
+  (field2), el brillo del LED (field3), quien manda (status) y la temperatura
+  (field1), y fija el brillo publicando en channels/<canal>/subscribe el JSON
+  del canal con field3 = 0..100.
+  Se abre con doble clic; necesita internet (MQTT.js desde una CDN y el broker).
+
+  Es para un firmware de prueba que no esta en este repositorio (la perilla de
+  GPIO2 regula el LED de GPIO20 y publica field1..field3). Con el publicador de
+  la practica solo mostraria la temperatura; para eso esta tablero.html.
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11, 11, 11, 0.10);
+    --s1: #2a78d6; --s1-track: #cde2fb; --s2: #eb6834;
+    --good: #0ca30c; --warning: #fab219; --critical: #d03b3b;
+    --btn: #0b0b0b; --btn-ink: #ffffff; --field: #ffffff;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --border: rgba(255, 255, 255, 0.10);
+      --s1: #3987e5; --s1-track: #184f95; --s2: #d95926;
+      --btn: #ffffff; --btn-ink: #0b0b0b; --field: #0d0d0d;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255, 255, 255, 0.10);
+    --s1: #3987e5; --s1-track: #184f95; --s2: #d95926;
+    --btn: #ffffff; --btn-ink: #0b0b0b; --field: #0d0d0d;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+         font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1080px; margin: 0 auto; padding: 24px 16px 40px; }
+  h1 { font-size: 24px; line-height: 1.2; margin: 0 0 6px; font-weight: 650; }
+  h2 { font-size: 15px; margin: 0; font-weight: 650; }
+  p { margin: 0; }
+  .sub { color: var(--ink-2); }
+  .nota { color: var(--muted); font-size: 13px; }
+  .mono { font-family: var(--mono); font-size: 13px; }
+  .cabecera { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-start;
+              justify-content: space-between; margin-bottom: 18px; }
+  .estado { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid var(--border);
+            border-radius: 999px; background: var(--surface); font-size: 14px; white-space: nowrap; }
+  .estado .icono { width: 16px; height: 16px; flex: none; }
+  .estado[data-estado="ok"] .icono { color: var(--good); }
+  .estado[data-estado="conectando"] .icono { color: var(--warning); }
+  .estado[data-estado="error"] .icono { color: var(--critical); }
+  .tarjeta { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 0; }
+  .rejilla { display: grid; gap: 16px; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 760px) { .rejilla { grid-template-columns: 1fr; } }
+  form.conexion { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px 12px; align-items: end; }
+  @media (max-width: 640px) { form.conexion { grid-template-columns: 1fr; } }
+  label { display: grid; gap: 4px; font-size: 13px; color: var(--ink-2); }
+  input[type="text"] { font: inherit; font-size: 14px; color: var(--ink); background: var(--field);
+    border: 1px solid var(--axis); border-radius: 8px; padding: 8px 10px; width: 100%; min-width: 0; }
+  input:focus-visible, button:focus-visible, .grafica:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+  button { font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 8px; padding: 8px 14px;
+           border: 1px solid var(--btn); background: var(--btn); color: var(--btn-ink); }
+  button.secundario { background: transparent; color: var(--ink); border-color: var(--axis); }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  .titulo-cifra { color: var(--ink-2); font-size: 14px; }
+  .heroe { font-size: 56px; line-height: 1.05; font-weight: 650; margin: 6px 0 4px; }
+  .heroe .unidad { font-size: 24px; font-weight: 500; color: var(--ink-2); margin-left: 4px; }
+  .medidor { height: 10px; border-radius: 5px; background: var(--s1-track); overflow: hidden; margin: 8px 0 6px; }
+  .medidor > div { height: 100%; width: 0; background: var(--s1); border-radius: 5px; transition: width 0.15s; }
+  .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px;
+          padding-top: 12px; border-top: 1px solid var(--grid); }
+  .kpi .valor { font-size: 20px; font-weight: 600; }
+  .deslizador { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; margin: 14px 0 10px; }
+  input[type="range"] { width: 100%; accent-color: var(--s2); }
+  .deslizador .valor { font-size: 24px; font-weight: 650; min-width: 4.2ch; text-align: right; }
+  .botones { display: flex; flex-wrap: wrap; gap: 8px; }
+  .grafica-caja { position: relative; margin-top: 10px; }
+  .grafica { display: block; width: 100%; height: 280px; touch-action: pan-y; }
+  .grafica:focus { outline: none; }
+  .vacio { position: absolute; inset: 0 0 28px 44px; display: grid; place-items: center; color: var(--muted);
+           font-size: 14px; pointer-events: none; }
+  .leyenda { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); margin-top: 6px; }
+  .leyenda span::before { content: ""; display: inline-block; width: 14px; height: 2px; margin-right: 6px;
+                          vertical-align: middle; background: var(--c); }
+  .tooltip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border);
+             border-radius: 8px; padding: 6px 10px; font-size: 13px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+             white-space: nowrap; display: none; }
+  .tooltip .fila { display: flex; align-items: center; gap: 6px; }
+  .tooltip .fila b { font-size: 14px; }
+  .tooltip .clave { width: 12px; height: 2px; }
+  .tooltip .hora { color: var(--ink-2); }
+  ol.registro { list-style: none; margin: 10px 0 0; padding: 0; max-height: 300px; overflow: auto; }
+  ol.registro li { padding: 7px 0; border-bottom: 1px solid var(--grid); display: grid; gap: 2px; }
+  .reg-cab { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: 13px; }
+  .reg-tipo { font-weight: 600; }
+  .reg-datos { font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); overflow-wrap: anywhere; }
+  .solo-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<main>
+  <div class="cabecera">
+    <div>
+      <h1>Perilla y LED por MQTT</h1>
+      <p class="sub">El potenciómetro de la placa regula el LED y publica su posición; desde aquí también se puede
+        fijar el brillo. Manda el último que cambia.</p>
+    </div>
+    <span class="estado" id="estado" data-estado="conectando" role="status">
+      <svg class="icono" viewBox="0 0 16 16" aria-hidden="true"></svg><span id="estado-texto">Cargando…</span>
+    </span>
+  </div>
+
+  <section class="tarjeta" style="margin-bottom:16px">
+    <form class="conexion" id="form-conexion">
+      <label>Broker (WebSocket seguro)
+        <input type="text" id="broker" autocomplete="off" spellcheck="false"></label>
+      <label>Canal (TS_CHANNEL_ID de credenciales.h)
+        <input type="text" id="canal" autocomplete="off" spellcheck="false"></label>
+      <button type="submit">Conectar</button>
+    </form>
+  </section>
+
+  <div class="rejilla">
+    <section class="tarjeta" aria-labelledby="t-perilla">
+      <h2 id="t-perilla" class="titulo-cifra" style="font-weight:500">Posición de la perilla</h2>
+      <div class="heroe"><span id="perilla">—</span><span class="unidad">%</span></div>
+      <div class="medidor" aria-hidden="true"><div id="barra-perilla"></div></div>
+      <p class="nota" id="perilla-hora">Esperando el primer mensaje de la placa.</p>
+      <div class="kpis">
+        <div class="kpi"><div class="titulo-cifra">Brillo del LED</div><div class="valor" id="k-brillo">—</div></div>
+        <div class="kpi"><div class="titulo-cifra">Lo fija</div><div class="valor" id="k-manda">—</div></div>
+        <div class="kpi"><div class="titulo-cifra">Temperatura</div><div class="valor" id="k-temp">—</div></div>
+      </div>
+    </section>
+
+    <section class="tarjeta" aria-labelledby="t-led">
+      <h2 id="t-led">Brillo del LED desde aquí</h2>
+      <p class="nota" style="margin-top:4px">Publica <span class="mono">field3</span> (0–100) en
+        <span class="mono" id="topico-sub">—</span>. Si después se gira la perilla, ella recupera el control.</p>
+      <div class="deslizador">
+        <input type="range" id="deslizador" min="0" max="100" step="1" value="50" aria-label="Brillo del LED en porcentaje">
+        <span class="valor"><span id="deslizador-valor">50</span> %</span>
+      </div>
+      <div class="botones">
+        <button type="button" class="secundario" data-pct="0">Apagar</button>
+        <button type="button" class="secundario" data-pct="25">25 %</button>
+        <button type="button" class="secundario" data-pct="50">50 %</button>
+        <button type="button" data-pct="100">Máximo</button>
+      </div>
+      <p class="nota" id="ultimo-comando" style="margin-top:10px">Todavía no se ha enviado ningún comando.</p>
+    </section>
+  </div>
+
+  <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-grafica">
+    <h2 id="t-grafica">Perilla y brillo, últimos 2 minutos (%)</h2>
+    <div class="leyenda"><span style="--c: var(--s1)">Posición de la perilla</span>
+      <span style="--c: var(--s2)">Brillo del LED</span></div>
+    <div class="grafica-caja" id="grafica-caja">
+      <svg class="grafica" id="grafica" tabindex="0" role="img"
+           aria-label="Gráfica de la posición de la perilla y del brillo del LED. Use las flechas para recorrer los mensajes."></svg>
+      <div class="vacio" id="vacio">Esperando datos de la placa…</div>
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+  </section>
+
+  <section class="tarjeta" style="margin-top:16px">
+    <h2>Mensajes MQTT</h2>
+    <ol class="registro" id="registro"></ol>
+  </section>
+  <p class="nota" style="margin-top:16px">Broker público: cualquiera puede leer y escribir en estos tópicos.</p>
+  <div class="solo-lector" aria-live="polite" id="anuncio"></div>
+</main>
+
+<script src="https://unpkg.com/mqtt@5.16.0/dist/mqtt.min.js"></script>
+<script>
+  if (!window.mqtt) document.write('<script src="https://cdn.jsdelivr.net/npm/mqtt@5.16.0/dist/mqtt.min.js"><\/script>');
+</script>
+<script>
+"use strict";
+const PREDETERMINADO = { broker: "wss://broker.hivemq.com:8884/mqtt", canal: "esp32c6-e8f60afc9114" };
+const VENTANA_MS = 120000, MAX_MUESTRAS = 2000, MAX_REGISTRO = 120;
+const hora = new Intl.DateTimeFormat("es-MX", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+const decimal1 = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const $ = (id) => document.getElementById(id);
+const almacen = {
+  leer(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  guardar(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* sin almacenamiento */ } },
+};
+
+let cliente = null, cerrandoAMano = false, topicos = { pub: "", sub: "" };
+let entrada = Number(almacen.leer("pot.entrada")) || 0;
+const muestras = [];      // { t, perilla, brillo, manda, temp }
+
+/* ----------------------------------------------------------- estado -- */
+function ponerEstado(tipo, texto) {
+  $("estado").dataset.estado = tipo;
+  $("estado").querySelector(".icono").innerHTML = tipo === "ok"
+    ? '<circle cx="8" cy="8" r="6" fill="currentColor"/><path d="M5 8.2l2 2 4-4.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+    : tipo === "error"
+      ? '<circle cx="8" cy="8" r="6" fill="currentColor"/><path d="M5.8 5.8l4.4 4.4M10.2 5.8l-4.4 4.4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>'
+      : '<circle cx="8" cy="8" r="5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3"/>';
+  $("estado-texto").textContent = texto;
+}
+
+function registrar(tipo, topico, datos) {
+  const li = document.createElement("li");
+  const cab = document.createElement("div");
+  cab.className = "reg-cab";
+  const t = document.createElement("span");
+  t.className = "mono"; t.style.color = "var(--muted)"; t.textContent = hora.format(new Date());
+  const ti = document.createElement("span");
+  ti.className = "reg-tipo"; ti.textContent = { in: "recibido", out: "enviado", info: "info", error: "error" }[tipo];
+  cab.append(t, ti);
+  if (topico) { const tp = document.createElement("span"); tp.className = "mono"; tp.textContent = topico; cab.append(tp); }
+  const d = document.createElement("div");
+  d.className = "reg-datos"; d.textContent = datos;          // datos del broker: siempre como texto
+  li.append(cab, d);
+  $("registro").prepend(li);
+  while ($("registro").children.length > MAX_REGISTRO) $("registro").lastChild.remove();
+}
+
+/* --------------------------------------------------------- conexion -- */
+function conectar() {
+  if (!window.mqtt) { ponerEstado("error", "No se pudo cargar MQTT.js (¿sin internet?)"); return; }
+  if (cliente) { cerrandoAMano = true; cliente.end(true); }
+  const broker = $("broker").value.trim(), canal = $("canal").value.trim();
+  if (!broker || !canal) { ponerEstado("error", "Escriba el broker y el canal"); return; }
+  almacen.guardar("pot.broker", broker); almacen.guardar("pot.canal", canal);
+  topicos = { pub: `channels/${canal}/publish`, sub: `channels/${canal}/subscribe` };
+  $("topico-sub").textContent = topicos.sub;
+  const nombre = (() => { try { return new URL(broker).hostname; } catch (e) { return broker; } })();
+  ponerEstado("conectando", `Conectando a ${nombre}…`);
+  cerrandoAMano = false;
+  cliente = mqtt.connect(broker, { clientId: "tablero-pot-" + Math.random().toString(16).slice(2, 10),
+                                   clean: true, keepalive: 60, connectTimeout: 10000, reconnectPeriod: 4000 });
+  cliente.on("connect", () => {
+    ponerEstado("ok", `Conectado a ${nombre}`);
+    cliente.subscribe([topicos.pub, topicos.sub], { qos: 0 }, (err) => {
+      registrar(err ? "error" : "info", "", err ? "No se pudo suscribir: " + err.message : `Suscrito a ${topicos.pub} y ${topicos.sub}`);
+    });
+  });
+  cliente.on("reconnect", () => ponerEstado("conectando", `Reconectando con ${nombre}…`));
+  cliente.on("close", () => { if (!cerrandoAMano) ponerEstado("error", "Sin conexión con el broker"); });
+  cliente.on("error", (e) => { ponerEstado("error", "Error: " + e.message); registrar("error", "", e.message); });
+  cliente.on("message", recibir);
+}
+
+/* --------------------------------------------------------- mensajes -- */
+function recibir(topico, datos) {
+  const texto = datos.toString();
+  registrar("in", topico, texto);
+  if (topico !== topicos.pub) return;
+  const p = new URLSearchParams(texto);
+  const perilla = Number.parseFloat(p.get("field2")), brillo = Number.parseFloat(p.get("field3"));
+  if (!Number.isFinite(perilla) || !Number.isFinite(brillo) || perilla < 0 || perilla > 100 || brillo < 0 || brillo > 100) return;
+  const temp = Number.parseFloat(p.get("field1"));
+  const manda = p.get("status") === "tablero" ? "tablero" : "perilla";
+  muestras.push({ t: Date.now(), perilla, brillo, manda, temp: Number.isFinite(temp) ? temp : null });
+  if (muestras.length > MAX_MUESTRAS) muestras.shift();
+  mostrarUltima();
+  dibujar();
+}
+
+function enviarBrillo(pct) {
+  if (!cliente || !cliente.connected) return;
+  entrada += 1; almacen.guardar("pot.entrada", String(entrada));
+  const mensaje = JSON.stringify({
+    channel_id: $("canal").value.trim(), created_at: new Date().toISOString().replace(/\.\d+Z$/, "Z"),
+    entry_id: entrada, field1: null, field2: null, field3: String(pct), field4: null, field5: null,
+    field6: null, field7: null, field8: null, latitude: null, longitude: null, elevation: null, status: null,
+  });
+  cliente.publish(topicos.sub, mensaje, { qos: 0, retain: false });
+  registrar("out", topicos.sub, mensaje);
+  $("ultimo-comando").textContent = `Último comando: brillo ${pct} %, a las ${hora.format(new Date())}.`;
+}
+
+function mostrarUltima() {
+  const m = muestras[muestras.length - 1];
+  if (!m) return;
+  $("perilla").textContent = String(Math.round(m.perilla));
+  $("barra-perilla").style.width = m.perilla + "%";
+  $("k-brillo").textContent = Math.round(m.brillo) + " %";
+  $("k-manda").textContent = m.manda === "tablero" ? "El tablero" : "La perilla";
+  const ultT = [...muestras].reverse().find((x) => x.temp !== null);
+  $("k-temp").textContent = ultT ? decimal1.format(ultT.temp) + " °C" : "—";
+  const s = Math.max(0, Math.round((Date.now() - m.t) / 1000));
+  $("perilla-hora").textContent = `Último mensaje a las ${hora.format(new Date(m.t))} (hace ${s} s).`;
+}
+setInterval(mostrarUltima, 1000);
+
+/* ---------------------------------------------------------- grafica -- */
+const NS = "http://www.w3.org/2000/svg";
+const MARGEN = { izq: 40, der: 92, arr: 12, aba: 28 };
+let geo = null, seleccion = -1;
+function nodo(n, a, padre) { const e = document.createElementNS(NS, n); for (const [k, v] of Object.entries(a)) e.setAttribute(k, v); if (padre) padre.appendChild(e); return e; }
+
+function dibujar() {
+  const svg = $("grafica"), ancho = svg.clientWidth, alto = svg.clientHeight;
+  svg.setAttribute("viewBox", `0 0 ${ancho} ${alto}`);
+  svg.replaceChildren();
+  $("vacio").style.display = muestras.length ? "none" : "grid";
+  if (!muestras.length || ancho < 160) { geo = null; return; }
+  const x0 = MARGEN.izq, x1 = ancho - MARGEN.der, y0 = alto - MARGEN.aba, y1 = MARGEN.arr;
+  const tFin = Math.max(Date.now(), muestras[muestras.length - 1].t), tIni = tFin - VENTANA_MS;
+  const sx = (t) => x0 + ((Math.max(t, tIni) - tIni) / VENTANA_MS) * (x1 - x0);
+  const sy = (v) => y0 - (v / 100) * (y0 - y1);
+  // Las muestras de la ventana, mas la anterior (su valor sigue vigente al empezar la ventana)
+  let desde = muestras.findIndex((m) => m.t >= tIni);
+  if (desde < 0) desde = muestras.length;
+  desde = Math.max(0, desde - 1);
+  const vis = muestras.slice(desde);
+  geo = { sx, sy, x0, x1, y0, y1, vis, tFin };
+
+  for (let v = 0; v <= 100; v += 25) {
+    const y = Math.round(sy(v)) + 0.5;
+    nodo("line", { x1: x0, x2: x1, y1: y, y2: y, stroke: v === 0 ? "var(--axis)" : "var(--grid)", "stroke-width": 1 }, svg);
+    nodo("text", { x: x0 - 8, y: y + 4, "text-anchor": "end", fill: "var(--muted)", "font-size": 12,
+                   style: "font-variant-numeric: tabular-nums" }, svg).textContent = String(v);
+  }
+  for (let s = 0; s <= 120; s += 30) {
+    const x = Math.round(sx(tIni + s * 1000)) + 0.5;
+    nodo("text", { x, y: y0 + 19, "text-anchor": "middle", fill: "var(--muted)", "font-size": 12 }, svg)
+      .textContent = s === 120 ? "ahora" : `−${120 - s} s`;
+  }
+  // Escalones: el valor se mantiene hasta el mensaje siguiente
+  const escalon = (clave) => {
+    let d = "";
+    vis.forEach((m, i) => {
+      const x = sx(m.t).toFixed(1), y = sy(m[clave]).toFixed(1);
+      d += i === 0 ? `M${x},${y}` : `H${x}V${y}`;
+    });
+    return d + `H${sx(tFin).toFixed(1)}`;
+  };
+  for (const [clave, color] of [["brillo", "var(--s2)"], ["perilla", "var(--s1)"]]) {
+    nodo("path", { d: escalon(clave), fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+  }
+  // Valores actuales al final de cada linea (con separacion si coinciden)
+  const ult = vis[vis.length - 1];
+  const yP = sy(ult.perilla), yB = sy(ult.brillo);
+  const sep = Math.abs(yP - yB) < 14 ? (yP <= yB ? [-7, 7] : [7, -7]) : [0, 0];
+  for (const [v, y, color, d] of [[ult.perilla, yP, "var(--s1)", sep[0]], [ult.brillo, yB, "var(--s2)", sep[1]]]) {
+    nodo("circle", { cx: x1, cy: y, r: 6, fill: "var(--surface)" }, svg);
+    nodo("circle", { cx: x1, cy: y, r: 4, fill: color }, svg);
+    nodo("text", { x: x1 + 10, y: y + 4 + d, fill: "var(--ink-2)", "font-size": 12, "font-weight": 600 }, svg)
+      .textContent = Math.round(v) + " %";
+  }
+  nodo("g", { id: "capa" }, svg);
+  if (seleccion >= vis.length) seleccion = -1;
+  mostrarSeleccion();
+}
+
+function mostrarSeleccion() {
+  const capa = document.getElementById("capa"), tip = $("tooltip");
+  if (!capa || !geo || seleccion < 0) { if (capa) capa.replaceChildren(); tip.style.display = "none"; return; }
+  const m = geo.vis[seleccion], x = geo.sx(m.t);
+  capa.replaceChildren();
+  nodo("line", { x1: x, x2: x, y1: geo.y1, y2: geo.y0, stroke: "var(--axis)", "stroke-width": 1 }, capa);
+  tip.replaceChildren();
+  for (const [nombre, v, color] of [["perilla", m.perilla, "var(--s1)"], ["brillo", m.brillo, "var(--s2)"]]) {
+    const f = document.createElement("div"); f.className = "fila";
+    const c = document.createElement("span"); c.className = "clave"; c.style.background = color;
+    const b = document.createElement("b"); b.textContent = Math.round(v) + " %";
+    const n = document.createElement("span"); n.textContent = nombre;
+    f.append(c, b, n); tip.append(f);
+  }
+  const h = document.createElement("div"); h.className = "hora";
+  h.textContent = `${hora.format(new Date(m.t))} · lo fija ${m.manda === "tablero" ? "el tablero" : "la perilla"}`;
+  tip.append(h);
+  tip.style.display = "block";
+  const caja = $("grafica-caja").getBoundingClientRect();
+  let izq = x + 12; if (izq + tip.offsetWidth > caja.width) izq = x - 12 - tip.offsetWidth;
+  tip.style.left = Math.max(0, izq) + "px"; tip.style.top = "10px";
+}
+
+const svg = $("grafica");
+svg.addEventListener("pointermove", (e) => {
+  if (!geo) return;
+  const xr = e.clientX - svg.getBoundingClientRect().left;
+  let mejor = -1, dist = Infinity;
+  geo.vis.forEach((m, i) => { const d = Math.abs(geo.sx(m.t) - xr); if (d < dist) { dist = d; mejor = i; } });
+  seleccion = mejor; mostrarSeleccion();
+});
+svg.addEventListener("pointerleave", () => { seleccion = -1; mostrarSeleccion(); });
+svg.addEventListener("keydown", (e) => {
+  if (!geo) return;
+  const n = geo.vis.length;
+  if (e.key === "ArrowLeft") seleccion = seleccion < 0 ? n - 1 : Math.max(0, seleccion - 1);
+  else if (e.key === "ArrowRight") seleccion = seleccion < 0 ? n - 1 : Math.min(n - 1, seleccion + 1);
+  else if (e.key === "Escape") seleccion = -1;
+  else return;
+  e.preventDefault(); mostrarSeleccion();
+});
+svg.addEventListener("blur", () => { seleccion = -1; mostrarSeleccion(); });
+new ResizeObserver(() => dibujar()).observe(svg);
+setInterval(() => { if (muestras.length) dibujar(); }, 1000);     // la ventana avanza aunque no lleguen mensajes
+
+/* ----------------------------------------------------------- inicio -- */
+const params = new URLSearchParams(location.search);
+$("broker").value = params.get("broker") || almacen.leer("pot.broker") || PREDETERMINADO.broker;
+$("canal").value = params.get("canal") || almacen.leer("pot.canal") || PREDETERMINADO.canal;
+$("form-conexion").addEventListener("submit", (e) => { e.preventDefault(); conectar(); });
+
+// Deslizador: envia mientras se arrastra (como mucho cada 150 ms) y al soltar
+let ultimoEnvio = 0, pendiente = null;
+$("deslizador").addEventListener("input", (e) => {
+  const v = Number(e.target.value);
+  $("deslizador-valor").textContent = String(v);
+  const ahora = Date.now();
+  clearTimeout(pendiente);
+  if (ahora - ultimoEnvio >= 150) { ultimoEnvio = ahora; enviarBrillo(v); }
+  else pendiente = setTimeout(() => { ultimoEnvio = Date.now(); enviarBrillo(v); }, 150);
+});
+document.querySelectorAll("[data-pct]").forEach((b) => b.addEventListener("click", () => {
+  const v = Number(b.dataset.pct);
+  $("deslizador").value = String(v); $("deslizador-valor").textContent = String(v);
+  enviarBrillo(v);
+}));
+dibujar();
+conectar();
+</script>
+</body>
+</html>
