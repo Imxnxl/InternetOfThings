@@ -1,0 +1,161 @@
+dependencies:
+  espressif/ethernet_init:
+    component_hash: 6268f857d06a1c414d38d38d74632e0d94074f8f653106bfa4a1d475a74f8fe0
+    dependencies:
+    - matches:
+      - if: $CONFIG{ETHERNET_SPI_USE_CH390} == 1
+      name: espressif/ch390
+      registry_url: https://components.espressif.com
+      require: private
+      version: ^0.4.0
+    - matches:
+      - if: $CONFIG{ETHERNET_SPI_USE_DM9051} == 1
+      name: espressif/dm9051
+      registry_url: https://components.espressif.com
+      require: private
+      rules:
+      - if: idf_version >=6.0
+        version: ^1.0.0
+      version: '*'
+    - matches:
+      - if: idf_version >=6.0
+        version: ^1.0.0
+      name: espressif/dp83848
+      registry_url: https://components.espressif.com
+      require: private
+      rules:
+      - if: $CONFIG{ETHERNET_SOC_EMAC_SUPPORTED} == 1
+      - if: $CONFIG{ETHERNET_PHY_USE_DP83848} == 1
+      version: '*'
+    - matches:
+      - if: $CONFIG{ETHERNET_SPI_USE_ENC28J60} == 1
+      name: espressif/enc28j60
+      registry_url: https://components.espressif.com
+      require: private
+      version: ^1.0.0
+    - matches:
+      - if: idf_version >=6.0
+        version: ^1.0.0
+      name: espressif/ip101
+      registry_url: https://components.espressif.com
+      require: private
+      rules:
+      - if: $CONFIG{ETHERNET_SOC_EMAC_SUPPORTED} == 1
+      - if: $CONFIG{ETHERNET_PHY_USE_IP101} == 1
+      version: '*'
+    - matches:
+      - if: idf_version >=6.0
+        version: ^1.0.0
+      name: espressif/ksz80xx
+      registry_url: https://components.espressif.com
+      require: private
+      rules:
+      - if: $CONFIG{ETHERNET_SOC_EMAC_SUPPORTED} == 1
+      - if: $CONFIG{ETHERNET_PHY_USE_KSZ80XX} == 1
+      version: '*'
+    - matches:
+      - if: $CONFIG{ETHERNET_SPI_USE_KSZ8851SNL} == 1
+      name: espressif/ksz8851snl
+      registry_url: https://components.espressif.com
+      require: private
+      rules:
+      - if: idf_version >=6.0
+        version: ^1.0.0
+      version: '*'
+    - matches:
+      - if: $CONFIG{ETHERNET_SPI_USE_LAN865X} == 1
+      name: espressif/lan865x
+      registry_url: https://components.espressif.com
+      require: private
+      version: ^0.2.0
+    - name: espressif/lan867x
+      registry_url: https://components.espressif.com
+      require: private
+      rules:
+      - if: $CONFIG{ETHERNET_SOC_EMAC_SUPPORTED} == 1
+      - if: $CONFIG{ETHERNET_PHY_USE_LAN867X} == 1
+      version: ^2.0.0
+    - matches:
+      - if: idf_version >=6.0
+        version: ^1.0.0
+      name: espressif/lan87xx
+      registry_url: https://components.espressif.com
+      require: private
+      rules:
+      - if: $CONFIG{ETHERNET_SOC_EMAC_SUPPORTED} == 1
+      - if: $CONFIG{ETHERNET_PHY_USE_LAN87XX} == 1
+      version: '*'
+    - matches:
+      - if: idf_version >=6.0
+        version: ^1.0.0
+      name: espressif/rtl8201
+      registry_url: https://components.espressif.com
+      require: private
+      rules:
+      - if: $CONFIG{ETHERNET_SOC_EMAC_SUPPORTED} == 1
+      - if: $CONFIG{ETHERNET_PHY_USE_RTL8201} == 1
+      version: '*'
+    - matches:
+      - if: idf_version >=6.1
+        version: ^0.2.0
+      name: espressif/vsc8541
+      registry_url: https://components.espressif.com
+      require: private
+      rules:
+      - if: $CONFIG{ETHERNET_SOC_EMAC_SUPPORTED} == 1
+      - if: $CONFIG{ETHERNET_PHY_USE_VSC8541} == 1
+      version: '*'
+    - matches:
+      - if: $CONFIG{ETHERNET_SPI_USE_W5500} == 1
+      name: espressif/w5500
+      registry_url: https://components.espressif.com
+      require: private
+      rules:
+      - if: idf_version >=6.0
+        version: ^2.0.0
+      version: '*'
+    - matches:
+      - if: $CONFIG{ETHERNET_SPI_USE_W6100} == 1
+      name: espressif/w6100
+      registry_url: https://components.espressif.com
+      require: private
+      version: ^1.0.0
+    - matches:
+      - if: idf_version >=6.1
+        version: ^0.2.0
+      name: espressif/yt8531
+      registry_url: https://components.espressif.com
+      require: private
+      rules:
+      - if: $CONFIG{ETHERNET_SOC_EMAC_SUPPORTED} == 1
+      - if: $CONFIG{ETHERNET_SOC_EMAC_SUPPORT_1000M} == 1
+      - if: $CONFIG{ETHERNET_PHY_USE_YT8531} == 1
+      version: '*'
+    - name: idf
+      require: private
+      version: '>=5.4.3,!=5.5.0,!=5.5.1'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.4.1
+  espressif/mqtt:
+    component_hash: fb18bc3b65aa8c94693a9811ffc322cca8a65d92d5ec84983d3e385080e3969c
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.3'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.1.0
+  idf:
+    source:
+      type: idf
+    version: 6.1.0
+direct_dependencies:
+- espressif/ethernet_init
+- espressif/mqtt
+- idf
+manifest_hash: 84a1c4819a9716f387adb970e4420cc542e83e6320e7d9e7a26f62c34fa3c8b3
+target: esp32c6
+version: 3.0.0

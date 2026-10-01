@@ -1,0 +1,16 @@
+{
+  "name": "mqtt-esp32c6-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cliente MQTT de prueba en el PC y generacion del .docx del informe (practica de MQTT con el ESP32-C6)",
+  "scripts": {
+    "observar": "node cliente_mqtt.js observar 90",
+    "encender": "node cliente_mqtt.js enviar 1",
+    "apagar": "node cliente_mqtt.js enviar 0",
+    "informe": "node informe_a_docx.js"
+  },
+  "dependencies": {
+    "docx": "^9.0.0",
+    "mqtt": "^5.16.0"
+  }
+}

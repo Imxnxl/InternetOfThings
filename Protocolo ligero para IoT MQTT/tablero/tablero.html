@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tablero MQTT ESP32-C6</title>
+<!--
+  tablero.html - Hace el papel de la pagina del canal de ThingSpeak cuando se
+  usa un broker MQTT publico (firmware/credenciales.broker_publico.h).
+
+  - Se suscribe a channels/<canal>/publish: dibuja la temperatura que publica
+    el ESP32-C6 (mensajes "field1=31.80&status=MQTTPublish").
+  - Publica en channels/<canal>/subscribe el JSON que enviaria ThingSpeak
+    ({"field1":"1", ...}): es lo que recibe el programa suscriptor.
+
+  Se abre con doble clic (no necesita servidor). Usa MQTT sobre WebSocket
+  seguro (wss) y la biblioteca MQTT.js desde una CDN, asi que necesita
+  internet. Cualquiera puede leer y escribir en un broker publico: todo lo
+  que llega se trata como texto no confiable.
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11, 11, 11, 0.10);
+    --series: #2a78d6;
+    --series-wash: rgba(42, 120, 214, 0.10);
+    --good: #0ca30c;
+    --warning: #fab219;
+    --critical: #d03b3b;
+    --btn: #0b0b0b;
+    --btn-ink: #ffffff;
+    --field: #ffffff;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --ink: #ffffff;
+      --ink-2: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --axis: #383835;
+      --border: rgba(255, 255, 255, 0.10);
+      --series: #3987e5;
+      --series-wash: rgba(57, 135, 229, 0.12);
+      --btn: #ffffff;
+      --btn-ink: #0b0b0b;
+      --field: #0d0d0d;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --series: #3987e5;
+    --series-wash: rgba(57, 135, 229, 0.12);
+    --btn: #ffffff;
+    --btn-ink: #0b0b0b;
+    --field: #0d0d0d;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 1080px; margin: 0 auto; padding: 24px 16px 40px; }
+  h1 { font-size: 24px; line-height: 1.2; margin: 0 0 6px; font-weight: 650; }
+  h2 { font-size: 15px; margin: 0; font-weight: 650; }
+  p { margin: 0; }
+  .sub { color: var(--ink-2); }
+  .nota { color: var(--muted); font-size: 13px; }
+  .mono { font-family: var(--mono); font-size: 13px; }
+
+  .cabecera { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-start;
+              justify-content: space-between; margin-bottom: 18px; }
+  .cabecera > div { max-width: 640px; }
+
+  .estado { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px;
+            border: 1px solid var(--border); border-radius: 999px; background: var(--surface);
+            font-size: 14px; white-space: nowrap; }
+  .estado .icono { width: 16px; height: 16px; flex: none; }
+  .estado[data-estado="ok"] .icono { color: var(--good); }
+  .estado[data-estado="conectando"] .icono { color: var(--warning); }
+  .estado[data-estado="error"] .icono { color: var(--critical); }
+
+  .tarjeta { background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+             padding: 16px; min-width: 0; }
+  .rejilla { display: grid; gap: 16px; }
+  .fila-arriba { grid-template-columns: 1.1fr 1fr; }
+  .fila-abajo { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 760px) {
+    .fila-arriba, .fila-abajo { grid-template-columns: 1fr; }
+  }
+
+  form.conexion { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px 12px; align-items: end; }
+  @media (max-width: 640px) { form.conexion { grid-template-columns: 1fr; } }
+  label { display: grid; gap: 4px; font-size: 13px; color: var(--ink-2); }
+  input[type="text"] {
+    font: inherit; font-size: 14px; color: var(--ink); background: var(--field);
+    border: 1px solid var(--axis); border-radius: 8px; padding: 8px 10px; width: 100%; min-width: 0;
+  }
+  input[type="text"]:focus-visible, button:focus-visible, .grafica:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--series); outline-offset: 2px;
+  }
+  button {
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 8px;
+    padding: 8px 14px; border: 1px solid var(--btn); background: var(--btn); color: var(--btn-ink);
+  }
+  button.secundario { background: transparent; color: var(--ink); border-color: var(--axis); }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .cifra-titulo { color: var(--ink-2); font-size: 14px; }
+  .heroe { font-size: 56px; line-height: 1.05; font-weight: 650; margin: 6px 0 4px; letter-spacing: -0.01em; }
+  .heroe .unidad { font-size: 24px; font-weight: 500; color: var(--ink-2); margin-left: 4px; }
+  .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px;
+          padding-top: 12px; border-top: 1px solid var(--grid); }
+  .kpi .valor { font-size: 20px; font-weight: 600; }
+
+  .led-botones { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 10px; }
+  .led-libre { display: flex; gap: 8px; align-items: end; }
+  .led-libre label { flex: 1; }
+
+  .grafica-caja { position: relative; margin-top: 10px; }
+  .grafica { display: block; width: 100%; height: 300px; touch-action: pan-y; }
+  .grafica:focus { outline: none; }
+  .vacio { position: absolute; inset: 0 0 28px 44px; display: grid; place-items: center;
+           color: var(--muted); font-size: 14px; text-align: center; padding: 0 12px; pointer-events: none; }
+  .tooltip { position: absolute; pointer-events: none; background: var(--surface); color: var(--ink);
+             border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px;
+             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12); white-space: nowrap; display: none; }
+  .tooltip .tt-valor { font-weight: 650; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+  .tooltip .tt-clave { width: 12px; height: 2px; background: var(--series); border-radius: 1px; }
+  .tooltip .tt-hora { color: var(--ink-2); }
+
+  details { margin-top: 12px; }
+  summary { cursor: pointer; color: var(--ink-2); font-size: 14px; }
+  .tabla-caja { max-height: 260px; overflow: auto; margin-top: 8px; border-top: 1px solid var(--grid); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--grid); }
+  th { color: var(--ink-2); font-weight: 600; position: sticky; top: 0; background: var(--surface); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  ol.registro { list-style: none; margin: 10px 0 0; padding: 0; max-height: 360px; overflow: auto; }
+  ol.registro li { padding: 8px 0; border-bottom: 1px solid var(--grid); display: grid; gap: 2px; }
+  .reg-cabecera { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: 13px; }
+  .reg-tipo { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .reg-tipo::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .reg-tipo[data-tipo="in"]::before { background: var(--series); }
+  .reg-tipo[data-tipo="out"]::before { background: var(--ink); }
+  .reg-tipo[data-tipo="error"]::before { background: var(--critical); }
+  .reg-datos { font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); overflow-wrap: anywhere; }
+
+  .solo-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  footer { margin-top: 18px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="cabecera">
+    <div>
+      <h1>Tablero MQTT del ESP32‑C6</h1>
+      <p class="sub">Hace de página del canal: dibuja la temperatura que publica la placa y envía comandos al
+        suscriptor, todo a través de un broker MQTT público.</p>
+    </div>
+    <span class="estado" id="estado" data-estado="conectando" role="status">
+      <svg class="icono" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="currentColor"/></svg>
+      <span id="estado-texto">Cargando…</span>
+    </span>
+  </div>
+
+  <section class="tarjeta" aria-labelledby="t-conexion" style="margin-bottom:16px">
+    <h2 id="t-conexion" class="solo-lector">Conexión</h2>
+    <form class="conexion" id="form-conexion">
+      <label>Broker (WebSocket seguro)
+        <input type="text" id="broker" list="brokers" autocomplete="off" spellcheck="false">
+        <datalist id="brokers">
+          <option value="wss://broker.hivemq.com:8884/mqtt">
+          <option value="wss://broker.emqx.io:8084/mqtt">
+        </datalist>
+      </label>
+      <label>Canal (TS_CHANNEL_ID de credenciales.h)
+        <input type="text" id="canal" autocomplete="off" spellcheck="false">
+      </label>
+      <button type="submit" id="btn-conectar">Conectar</button>
+    </form>
+    <p class="nota" style="margin-top:8px">La placa usa el mismo broker por TCP (<span class="mono">mqtt://broker.hivemq.com</span>).
+      Tópicos: <span class="mono" id="topico-pub">—</span> y <span class="mono" id="topico-sub">—</span>.</p>
+  </section>
+
+  <div class="rejilla fila-arriba">
+    <section class="tarjeta" aria-labelledby="t-actual">
+      <h2 id="t-actual" class="cifra-titulo" style="font-weight:500">Temperatura del chip, última lectura</h2>
+      <div class="heroe"><span id="actual">—</span><span class="unidad">°C</span></div>
+      <p class="nota" id="actual-hora">Esperando la primera lectura. El publicador envía una cada 20 s.</p>
+      <div class="kpis">
+        <div class="kpi"><div class="cifra-titulo">Lecturas</div><div class="valor" id="k-n">0</div></div>
+        <div class="kpi"><div class="cifra-titulo">Mínima</div><div class="valor" id="k-min">—</div></div>
+        <div class="kpi"><div class="cifra-titulo">Máxima</div><div class="valor" id="k-max">—</div></div>
+      </div>
+    </section>
+
+    <section class="tarjeta" aria-labelledby="t-led">
+      <h2 id="t-led">LED del suscriptor (GPIO20)</h2>
+      <p class="nota" style="margin-top:4px">Publica en <span class="mono" id="topico-led">—</span> el JSON que enviaría
+        ThingSpeak. Con el programa suscriptor en la placa, el LED responde al instante.</p>
+      <div class="led-botones">
+        <button type="button" id="btn-on">Encender (field1 = 1)</button>
+        <button type="button" class="secundario" id="btn-off">Apagar (field1 = 0)</button>
+      </div>
+      <form class="led-libre" id="form-libre">
+        <label>Otro valor de field1
+          <input type="text" id="valor-libre" value="27.5" autocomplete="off" spellcheck="false">
+        </label>
+        <button type="submit" class="secundario" id="btn-libre">Enviar</button>
+      </form>
+      <p class="nota" id="led-ultimo" style="margin-top:10px">Todavía no se ha enviado ningún comando.</p>
+    </section>
+  </div>
+
+  <section class="tarjeta" aria-labelledby="t-grafica" style="margin-top:16px">
+    <h2 id="t-grafica">Temperatura del chip (°C)</h2>
+    <p class="nota">field1 de los mensajes del publicador. Pase el cursor (o use las flechas) para ver cada lectura.</p>
+    <div class="grafica-caja" id="grafica-caja">
+      <svg class="grafica" id="grafica" tabindex="0" role="img"
+           aria-label="Gráfica de la temperatura del chip. Use las flechas izquierda y derecha para recorrer las lecturas."></svg>
+      <div class="vacio" id="vacio">Esperando datos del publicador…</div>
+      <div class="tooltip" id="tooltip">
+        <div class="tt-valor"><span class="tt-clave"></span><span id="tt-valor"></span></div>
+        <div class="tt-hora" id="tt-hora"></div>
+      </div>
+    </div>
+    <details>
+      <summary>Ver las lecturas en una tabla</summary>
+      <div class="tabla-caja">
+        <table>
+          <thead><tr><th>Hora</th><th class="num">Temperatura (°C)</th></tr></thead>
+          <tbody id="tabla"></tbody>
+        </table>
+      </div>
+      <button type="button" class="secundario" id="btn-csv" style="margin-top:10px">Descargar lecturas (CSV)</button>
+    </details>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="t-registro" style="margin-top:16px">
+    <h2 id="t-registro">Mensajes MQTT</h2>
+    <p class="nota">Lo que entra y sale por el broker, el más reciente arriba.</p>
+    <ol class="registro" id="registro"></ol>
+  </section>
+
+  <footer class="nota">
+    Broker público: cualquiera puede leer y escribir en estos tópicos. No envíe datos privados.
+  </footer>
+  <div class="solo-lector" aria-live="polite" id="anuncio"></div>
+</main>
+
+<script src="https://unpkg.com/mqtt@5.16.0/dist/mqtt.min.js"></script>
+<script>
+  // Si unpkg no responde, se intenta con jsDelivr.
+  if (!window.mqtt) {
+    document.write('<script src="https://cdn.jsdelivr.net/npm/mqtt@5.16.0/dist/mqtt.min.js"><\/script>');
+  }
+</script>
+<script>
+"use strict";
+
+/* ------------------------------------------------------------ Ajustes -- */
+
+const PREDETERMINADO = {
+  broker: "wss://broker.hivemq.com:8884/mqtt",
+  canal: "esp32c6-e8f60afc9114",
+};
+const MAX_LECTURAS = 360;           // 2 horas a una lectura cada 20 s
+const MAX_REGISTRO = 150;
+const RANGO_VALIDO = [-40, 125];    // rango del sensor del chip; fuera de el no se dibuja
+
+const numero = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const hora = new Intl.DateTimeFormat("es-MX", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+const horaCorta = new Intl.DateTimeFormat("es-MX", { hour: "2-digit", minute: "2-digit", hour12: false });
+
+const $ = (id) => document.getElementById(id);
+
+// localStorage puede no estar disponible (modo privado, archivo local...).
+const almacen = {
+  leer(clave) { try { return localStorage.getItem(clave); } catch (e) { return null; } },
+  guardar(clave, valor) { try { localStorage.setItem(clave, valor); } catch (e) { /* sin almacenamiento */ } },
+};
+
+/* ------------------------------------------------------------- Estado -- */
+
+let cliente = null;
+let cerrandoAMano = false;
+let topicos = { pub: "", sub: "" };
+let entrada = Number(almacen.leer("tablero.entrada")) || 0;
+const lecturas = [];                // { t: milisegundos, v: grados C }
+
+function ponerEstado(tipo, texto) {
+  const caja = $("estado");
+  caja.dataset.estado = tipo;
+  const icono = caja.querySelector(".icono");
+  icono.innerHTML = tipo === "ok"
+    ? '<circle cx="8" cy="8" r="6" fill="currentColor"/><path d="M5 8.2l2 2 4-4.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+    : tipo === "error"
+      ? '<circle cx="8" cy="8" r="6" fill="currentColor"/><path d="M5.8 5.8l4.4 4.4M10.2 5.8l-4.4 4.4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>'
+      : '<circle cx="8" cy="8" r="5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3"/>';
+  $("estado-texto").textContent = texto;
+}
+
+/* ----------------------------------------------------------- Registro -- */
+
+function registrar(tipo, topico, datos) {
+  const etiquetas = { in: "recibido", out: "enviado", info: "info", error: "error" };
+  const li = document.createElement("li");
+  const cab = document.createElement("div");
+  cab.className = "reg-cabecera";
+  const t = document.createElement("span");
+  t.className = "mono";
+  t.style.color = "var(--muted)";
+  t.textContent = hora.format(new Date());
+  const tipoEl = document.createElement("span");
+  tipoEl.className = "reg-tipo";
+  tipoEl.dataset.tipo = tipo;
+  tipoEl.textContent = etiquetas[tipo] || tipo;
+  cab.append(t, tipoEl);
+  if (topico) {
+    const top = document.createElement("span");
+    top.className = "mono";
+    top.textContent = topico;
+    cab.append(top);
+  }
+  const d = document.createElement("div");
+  d.className = "reg-datos";
+  d.textContent = datos;                 // datos del broker: siempre como texto
+  li.append(cab, d);
+  const lista = $("registro");
+  lista.prepend(li);
+  while (lista.children.length > MAX_REGISTRO) lista.lastChild.remove();
+}
+
+/* ------------------------------------------------------------ Conexion -- */
+
+function conectar() {
+  if (!window.mqtt) {
+    ponerEstado("error", "No se pudo cargar MQTT.js (¿sin internet?)");
+    return;
+  }
+  desconectar();
+  const broker = $("broker").value.trim();
+  const canal = $("canal").value.trim();
+  if (!broker || !canal) {
+    ponerEstado("error", "Escriba el broker y el canal");
+    return;
+  }
+  almacen.guardar("tablero.broker", broker);
+  almacen.guardar("tablero.canal", canal);
+  topicos = { pub: `channels/${canal}/publish`, sub: `channels/${canal}/subscribe` };
+  $("topico-pub").textContent = topicos.pub;
+  $("topico-sub").textContent = topicos.sub;
+  $("topico-led").textContent = topicos.sub;
+
+  const nombre = (() => { try { return new URL(broker).hostname; } catch (e) { return broker; } })();
+  ponerEstado("conectando", `Conectando a ${nombre}…`);
+  cerrandoAMano = false;
+  cliente = mqtt.connect(broker, {
+    clientId: "tablero-" + Math.random().toString(16).slice(2, 10),
+    clean: true,
+    keepalive: 60,
+    connectTimeout: 10000,
+    reconnectPeriod: 4000,
+  });
+  cliente.on("connect", () => {
+    ponerEstado("ok", `Conectado a ${nombre}`);
+    cliente.subscribe([topicos.pub, topicos.sub], { qos: 0 }, (err) => {
+      if (err) registrar("error", "", "No se pudo suscribir: " + err.message);
+      else registrar("info", "", `Suscrito a ${topicos.pub} y ${topicos.sub}`);
+    });
+    actualizarBotones();
+  });
+  cliente.on("reconnect", () => ponerEstado("conectando", `Reconectando con ${nombre}…`));
+  cliente.on("offline", () => { if (!cerrandoAMano) ponerEstado("error", "Sin conexión con el broker"); actualizarBotones(); });
+  cliente.on("close", () => { if (!cerrandoAMano) ponerEstado("error", "Sin conexión con el broker"); actualizarBotones(); });
+  cliente.on("error", (e) => { ponerEstado("error", "Error: " + e.message); registrar("error", "", e.message); });
+  cliente.on("message", recibir);
+}
+
+function desconectar() {
+  if (cliente) {
+    cerrandoAMano = true;
+    cliente.end(true);
+    cliente = null;
+  }
+  actualizarBotones();
+}
+
+function actualizarBotones() {
+  const listo = !!(cliente && cliente.connected);
+  for (const id of ["btn-on", "btn-off", "btn-libre"]) $(id).disabled = !listo;
+}
+
+/* --------------------------------------------------------- Mensajes -- */
+
+function recibir(topico, datos) {
+  const texto = datos.toString();
+  registrar("in", topico, texto);
+  if (topico !== topicos.pub) return;
+
+  // "field1=31.80&status=MQTTPublish" (formato de ThingSpeak)
+  const valor = Number.parseFloat(new URLSearchParams(texto).get("field1"));
+  if (Number.isFinite(valor) && valor >= RANGO_VALIDO[0] && valor <= RANGO_VALIDO[1]) {
+    agregarLectura(Date.now(), valor);
+  }
+}
+
+function enviarComando(valor) {
+  if (!cliente || !cliente.connected) return;
+  entrada += 1;
+  almacen.guardar("tablero.entrada", String(entrada));
+  const canal = $("canal").value.trim();
+  const mensaje = JSON.stringify({
+    channel_id: canal,
+    created_at: new Date().toISOString().replace(/\.\d+Z$/, "Z"),
+    entry_id: entrada,
+    field1: String(valor),
+    field2: null, field3: null, field4: null, field5: null,
+    field6: null, field7: null, field8: null,
+    latitude: null, longitude: null, elevation: null, status: null,
+  });
+  cliente.publish(topicos.sub, mensaje, { qos: 0, retain: false }, (err) => {
+    if (err) {
+      registrar("error", topicos.sub, "No se pudo enviar: " + err.message);
+      return;
+    }
+    $("led-ultimo").textContent = `Último comando: field1 = ${valor}, enviado a las ${hora.format(new Date())}.`;
+  });
+  registrar("out", topicos.sub, mensaje);
+}
+
+/* ---------------------------------------------------------- Lecturas -- */
+
+function agregarLectura(t, v) {
+  lecturas.push({ t, v });
+  if (lecturas.length > MAX_LECTURAS) lecturas.shift();
+
+  $("actual").textContent = numero.format(v);
+  $("k-n").textContent = String(lecturas.length);
+  const valores = lecturas.map((l) => l.v);
+  $("k-min").textContent = numero.format(Math.min(...valores)) + " °C";
+  $("k-max").textContent = numero.format(Math.max(...valores)) + " °C";
+  $("anuncio").textContent = `Nueva lectura: ${numero.format(v)} grados`;
+
+  const fila = document.createElement("tr");
+  const c1 = document.createElement("td");
+  c1.textContent = hora.format(new Date(t));
+  const c2 = document.createElement("td");
+  c2.className = "num";
+  c2.textContent = numero.format(v);
+  fila.append(c1, c2);
+  const tabla = $("tabla");
+  tabla.prepend(fila);
+  while (tabla.children.length > MAX_LECTURAS) tabla.lastChild.remove();
+
+  actualizarHace();
+  dibujar();
+}
+
+function actualizarHace() {
+  if (!lecturas.length) return;
+  const ultima = lecturas[lecturas.length - 1];
+  const s = Math.max(0, Math.round((Date.now() - ultima.t) / 1000));
+  $("actual-hora").textContent = `Recibida a las ${hora.format(new Date(ultima.t))} (hace ${s} s).`;
+}
+setInterval(actualizarHace, 1000);
+
+function descargarCsv() {
+  const filas = ["hora_iso,temperatura_c"].concat(
+    lecturas.map((l) => `${new Date(l.t).toISOString()},${l.v}`));
+  const blob = new Blob([filas.join("\n") + "\n"], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "lecturas_temperatura.csv";
+  document.body.append(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+/* ------------------------------------------------------------ Grafica -- */
+
+const NS = "http://www.w3.org/2000/svg";
+const MARGEN = { izq: 44, der: 64, arr: 14, aba: 28 };
+let geometria = null;               // escalas del ultimo dibujo, para el cursor
+let seleccion = -1;                 // indice de la lectura bajo el cursor
+
+function nodo(nombre, atributos, padre) {
+  const n = document.createElementNS(NS, nombre);
+  for (const [k, v] of Object.entries(atributos)) n.setAttribute(k, v);
+  if (padre) padre.appendChild(n);
+  return n;
+}
+
+// Paso "redondo" (1, 2 o 5 por una potencia de 10) para unas divisiones dadas.
+function pasoLimpio(rango, divisiones) {
+  const crudo = rango / divisiones;
+  const potencia = Math.pow(10, Math.floor(Math.log10(crudo)));
+  for (const m of [1, 2, 5, 10]) if (m * potencia >= crudo) return m * potencia;
+  return 10 * potencia;
+}
+
+function dibujar() {
+  const svg = $("grafica");
+  const ancho = svg.clientWidth;
+  const alto = svg.clientHeight;
+  svg.setAttribute("viewBox", `0 0 ${ancho} ${alto}`);
+  svg.replaceChildren();
+  $("vacio").style.display = lecturas.length ? "none" : "grid";
+  if (!lecturas.length || ancho < 120) { geometria = null; return; }
+
+  const x0 = MARGEN.izq, x1 = ancho - MARGEN.der;
+  const y0 = alto - MARGEN.aba, y1 = MARGEN.arr;
+
+  // Eje X: al menos 2 minutos, con la ultima lectura en el borde derecho.
+  const tFin = lecturas[lecturas.length - 1].t;
+  const tIni = Math.min(lecturas[0].t, tFin - 120000);
+
+  // Eje Y: margen de 1 C y un rango minimo de 4 C, para que el escalon de
+  // ~1 C del sensor no parezca un salto enorme.
+  let vMin = Math.min(...lecturas.map((l) => l.v)) - 1;
+  let vMax = Math.max(...lecturas.map((l) => l.v)) + 1;
+  if (vMax - vMin < 4) { const c = (vMax + vMin) / 2; vMin = c - 2; vMax = c + 2; }
+  const pasoY = pasoLimpio(vMax - vMin, 5);
+  vMin = Math.floor(vMin / pasoY) * pasoY;
+  vMax = Math.ceil(vMax / pasoY) * pasoY;
+
+  const sx = (t) => x0 + ((t - tIni) / (tFin - tIni)) * (x1 - x0);
+  const sy = (v) => y0 - ((v - vMin) / (vMax - vMin)) * (y0 - y1);
+  geometria = { sx, sy, x0, x1, y0, y1 };
+
+  // Rejilla horizontal y valores del eje Y
+  const decimales = Math.max(0, -Math.floor(Math.log10(pasoY) + 1e-9));   // 0,5 -> 1; 2 -> 0
+  const fmtEje = new Intl.NumberFormat("es-ES", { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
+  for (let v = vMin; v <= vMax + pasoY / 1000; v += pasoY) {
+    const y = Math.round(sy(v)) + 0.5;
+    nodo("line", { x1: x0, x2: x1, y1: y, y2: y, stroke: "var(--grid)", "stroke-width": 1 }, svg);
+    const et = nodo("text", { x: x0 - 8, y: y + 4, "text-anchor": "end", fill: "var(--muted)",
+                              "font-size": 12, style: "font-variant-numeric: tabular-nums" }, svg);
+    et.textContent = fmtEje.format(v);
+  }
+
+  // Linea base y marcas de tiempo
+  nodo("line", { x1: x0, x2: x1, y1: y0 + 0.5, y2: y0 + 0.5, stroke: "var(--axis)", "stroke-width": 1 }, svg);
+  const pasos = [10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600].map((s) => s * 1000);
+  const maxMarcas = Math.max(2, Math.floor((x1 - x0) / 90));
+  const pasoT = pasos.find((p) => (tFin - tIni) / p <= maxMarcas) || 3600000;
+  const fmtT = pasoT < 60000 ? hora : horaCorta;
+  for (let t = Math.ceil(tIni / pasoT) * pasoT; t <= tFin; t += pasoT) {
+    const x = Math.round(sx(t)) + 0.5;
+    if (x < x0 + 24) continue;          // pegada al eje Y: chocaria con sus valores
+    nodo("line", { x1: x, x2: x, y1: y0, y2: y0 + 5, stroke: "var(--axis)", "stroke-width": 1 }, svg);
+    const et = nodo("text", { x, y: y0 + 19, "text-anchor": "middle", fill: "var(--muted)",
+                              "font-size": 12, style: "font-variant-numeric: tabular-nums" }, svg);
+    et.textContent = fmtT.format(new Date(t));
+  }
+
+  // Area (lavado del 10 %) y linea de 2 px
+  const puntos = lecturas.map((l) => [sx(l.t), sy(l.v)]);
+  const linea = puntos.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+  if (puntos.length > 1) {
+    const area = `${linea} L${puntos[puntos.length - 1][0].toFixed(1)},${y0} L${puntos[0][0].toFixed(1)},${y0} Z`;
+    nodo("path", { d: area, fill: "var(--series-wash)", stroke: "none" }, svg);
+    nodo("path", { d: linea, fill: "none", stroke: "var(--series)", "stroke-width": 2,
+                   "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+  }
+
+  // Ultimo punto: marcador con anillo del color de la superficie y su valor
+  const [ux, uy] = puntos[puntos.length - 1];
+  nodo("circle", { cx: ux, cy: uy, r: 6, fill: "var(--surface)" }, svg);
+  nodo("circle", { cx: ux, cy: uy, r: 4, fill: "var(--series)" }, svg);
+  const etFin = nodo("text", { x: ux + 10, y: uy + 4, fill: "var(--ink-2)", "font-size": 12, "font-weight": 600 }, svg);
+  etFin.textContent = numero.format(lecturas[lecturas.length - 1].v) + " °C";
+
+  // Capa del cursor (se rellena en mostrarSeleccion)
+  nodo("g", { id: "capa-cursor" }, svg);
+  if (seleccion >= lecturas.length) seleccion = -1;
+  mostrarSeleccion();
+}
+
+function mostrarSeleccion() {
+  const capa = document.getElementById("capa-cursor");
+  const tip = $("tooltip");
+  if (!capa || !geometria || seleccion < 0) {
+    if (capa) capa.replaceChildren();
+    tip.style.display = "none";
+    return;
+  }
+  const l = lecturas[seleccion];
+  const x = geometria.sx(l.t), y = geometria.sy(l.v);
+  capa.replaceChildren();
+  nodo("line", { x1: x, x2: x, y1: geometria.y1, y2: geometria.y0, stroke: "var(--axis)", "stroke-width": 1 }, capa);
+  nodo("circle", { cx: x, cy: y, r: 6, fill: "var(--surface)" }, capa);
+  nodo("circle", { cx: x, cy: y, r: 4, fill: "var(--series)" }, capa);
+
+  $("tt-valor").textContent = numero.format(l.v) + " °C";
+  $("tt-hora").textContent = hora.format(new Date(l.t));
+  tip.style.display = "block";
+  const caja = $("grafica-caja").getBoundingClientRect();
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  let izq = x + 12;
+  if (izq + w > caja.width) izq = x - 12 - w;
+  tip.style.left = Math.max(0, izq) + "px";
+  tip.style.top = Math.max(0, Math.min(y - h - 10, caja.height - h)) + "px";
+}
+
+function masCercana(xPantalla) {
+  let mejor = -1, distancia = Infinity;
+  lecturas.forEach((l, i) => {
+    const d = Math.abs(geometria.sx(l.t) - xPantalla);
+    if (d < distancia) { distancia = d; mejor = i; }
+  });
+  return mejor;
+}
+
+const svgGrafica = $("grafica");
+svgGrafica.addEventListener("pointermove", (e) => {
+  if (!geometria) return;
+  const r = svgGrafica.getBoundingClientRect();
+  seleccion = masCercana(e.clientX - r.left);
+  mostrarSeleccion();
+});
+svgGrafica.addEventListener("pointerleave", () => { seleccion = -1; mostrarSeleccion(); });
+svgGrafica.addEventListener("keydown", (e) => {
+  if (!lecturas.length) return;
+  if (e.key === "ArrowLeft") seleccion = seleccion < 0 ? lecturas.length - 1 : Math.max(0, seleccion - 1);
+  else if (e.key === "ArrowRight") seleccion = seleccion < 0 ? lecturas.length - 1 : Math.min(lecturas.length - 1, seleccion + 1);
+  else if (e.key === "Home") seleccion = 0;
+  else if (e.key === "End") seleccion = lecturas.length - 1;
+  else if (e.key === "Escape") seleccion = -1;
+  else return;
+  e.preventDefault();
+  mostrarSeleccion();
+});
+svgGrafica.addEventListener("blur", () => { seleccion = -1; mostrarSeleccion(); });
+new ResizeObserver(() => dibujar()).observe(svgGrafica);
+
+/* ------------------------------------------------------------- Inicio -- */
+
+const params = new URLSearchParams(location.search);
+$("broker").value = params.get("broker") || almacen.leer("tablero.broker") || PREDETERMINADO.broker;
+$("canal").value = params.get("canal") || almacen.leer("tablero.canal") || PREDETERMINADO.canal;
+
+$("form-conexion").addEventListener("submit", (e) => { e.preventDefault(); conectar(); });
+$("btn-on").addEventListener("click", () => enviarComando(1));
+$("btn-off").addEventListener("click", () => enviarComando(0));
+$("form-libre").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const v = $("valor-libre").value.trim();
+  if (v) enviarComando(v);
+});
+$("btn-csv").addEventListener("click", descargarCsv);
+
+actualizarBotones();
+dibujar();
+conectar();
+</script>
+</body>
+</html>

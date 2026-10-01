@@ -1,0 +1,171 @@
+[2026-10-01T03:31:26.702Z |    0.231 s] ESP-ROM:esp32c6-20220919
+[2026-10-01T03:31:26.702Z |    0.231 s] Build:Sep 19 2022
+[2026-10-01T03:31:26.702Z |    0.232 s] rst:0x1 (POWERON),boot:0x3c (SPI_FAST_FLASH_BOOT)
+[2026-10-01T03:31:26.702Z |    0.232 s] SPIWP:0xee
+[2026-10-01T03:31:26.702Z |    0.232 s] mode:DIO, clock div:2
+[2026-10-01T03:31:26.702Z |    0.232 s] load:0x40875730,len:0x1648
+[2026-10-01T03:31:26.702Z |    0.232 s] load:0x4086b910,len:0xdbc
+[2026-10-01T03:31:26.702Z |    0.232 s] load:0x4086e610,len:0x31f0
+[2026-10-01T03:31:26.702Z |    0.232 s] entry 0x4086b91a
+[2026-10-01T03:31:26.703Z |    0.232 s] I (23) boot: ESP-IDF v6.1 2nd stage bootloader
+[2026-10-01T03:31:26.703Z |    0.232 s] I (24) boot: compile time Sep 30 2026 20:00:49
+[2026-10-01T03:31:26.703Z |    0.232 s] I (24) boot: chip revision: v0.2
+[2026-10-01T03:31:26.703Z |    0.232 s] I (24) boot: efuse block revision: v0.3
+[2026-10-01T03:31:26.703Z |    0.232 s] I (27) boot.esp32c6: SPI Speed      : 80MHz
+[2026-10-01T03:31:26.703Z |    0.232 s] I (31) boot.esp32c6: SPI Mode       : DIO
+[2026-10-01T03:31:26.703Z |    0.232 s] I (35) boot.esp32c6: SPI Flash Size : 2MB
+[2026-10-01T03:31:26.703Z |    0.232 s] I (38) boot: Enabling RNG early entropy source...
+[2026-10-01T03:31:26.703Z |    0.232 s] I (43) boot: Partition Table:
+[2026-10-01T03:31:26.703Z |    0.232 s] I (45) boot: ## Label            Usage          Type ST Offset   Length
+[2026-10-01T03:31:26.703Z |    0.232 s] I (52) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+[2026-10-01T03:31:26.703Z |    0.232 s] I (58) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+[2026-10-01T03:31:26.703Z |    0.232 s] I (65) boot:  2 factory          factory app      00 00 00010000 00177000
+[2026-10-01T03:31:26.703Z |    0.232 s] I (71) boot: End of partition table
+[2026-10-01T03:31:26.703Z |    0.232 s] I (75) esp_image: segment 0: paddr=00010020 vaddr=420c8020 size=25054h (151636) map
+[2026-10-01T03:31:26.703Z |    0.232 s] I (112) esp_image: segment 1: paddr=0003507c vaddr=40800000 size=02f9ch ( 12188) load
+[2026-10-01T03:31:26.703Z |    0.232 s] I (115) esp_image: segment 2: paddr=00038020 vaddr=42000020 size=c20a8h (794792) map
+[2026-10-01T03:31:26.953Z |    0.482 s] I (269) esp_image: segment 3: paddr=000fa0d0 vaddr=40802f9c size=19644h (104004) load
+[2026-10-01T03:31:26.953Z |    0.482 s] I (298) boot: Loaded app from partition at offset 0x10000
+[2026-10-01T03:31:26.953Z |    0.482 s] I (298) boot: Disabling RNG early entropy source...
+[2026-10-01T03:31:26.953Z |    0.482 s] I (308) cpu_start: Unicore app
+[2026-10-01T03:31:26.953Z |    0.482 s] I (317) cpu_start: GPIO 17 and 16 are used as console UART I/O pins
+[2026-10-01T03:31:26.953Z |    0.482 s] I (317) cpu_start: Pro cpu start user code
+[2026-10-01T03:31:26.953Z |    0.482 s] I (317) cpu_start: cpu freq: 160000000 Hz
+[2026-10-01T03:31:26.953Z |    0.482 s] I (319) app_init: Application information:
+[2026-10-01T03:31:26.953Z |    0.482 s] I (323) app_init: Project name:     mqtt_publicador
+[2026-10-01T03:31:26.953Z |    0.482 s] I (327) app_init: App version:      a2bf846-dirty
+[2026-10-01T03:31:26.953Z |    0.482 s] I (332) app_init: Compile time:     Sep 30 2026 20:54:19
+[2026-10-01T03:31:26.953Z |    0.482 s] I (337) app_init: ELF file SHA256:  a4d38bfcf...
+[2026-10-01T03:31:26.953Z |    0.482 s] I (341) app_init: ESP-IDF:          v6.1
+[2026-10-01T03:31:26.953Z |    0.482 s] I (345) efuse_init: Min chip rev:     v0.0
+[2026-10-01T03:31:26.953Z |    0.482 s] I (349) efuse_init: Max chip rev:     v0.99 
+[2026-10-01T03:31:26.953Z |    0.482 s] I (353) efuse_init: Chip rev:         v0.2
+[2026-10-01T03:31:26.953Z |    0.482 s] I (357) heap_init: Initializing. RAM available for dynamic allocation:
+[2026-10-01T03:31:26.953Z |    0.482 s] I (363) heap_init: At 408224A0 len 0005A170 (360 KiB): RAM
+[2026-10-01T03:31:26.953Z |    0.482 s] I (368) heap_init: At 4087C610 len 00002F54 (11 KiB): RAM
+[2026-10-01T03:31:26.953Z |    0.482 s] I (373) heap_init: At 50000000 len 00003FE8 (15 KiB): RTCRAM
+[2026-10-01T03:31:26.953Z |    0.482 s] W (379) spi_flash: Detected boya flash chip but using generic driver. For optimal functionality, enable `SPI_FLASH_SUPPORT_BOYA_CHIP` in menuconfig
+[2026-10-01T03:31:26.953Z |    0.483 s] I (392) spi_flash: detected chip: generic
+[2026-10-01T03:31:26.953Z |    0.483 s] I (395) spi_flash: flash io: dio
+[2026-10-01T03:31:26.953Z |    0.483 s] W (398) spi_flash: Detected size(16384k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+[2026-10-01T03:31:26.953Z |    0.483 s] I (411) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+[2026-10-01T03:31:26.953Z |    0.483 s] I (417) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+[2026-10-01T03:31:26.953Z |    0.483 s] I (423) coexist: coex firmware version: a830d28
+[2026-10-01T03:31:26.953Z |    0.483 s] I (428) coexist: coexist rom version 5b8dcfa
+[2026-10-01T03:31:26.953Z |    0.483 s] I (432) main_task: Started on CPU0
+[2026-10-01T03:31:26.953Z |    0.483 s] I (432) main_task: Calling app_main()
+[2026-10-01T03:31:26.953Z |    0.483 s] I (432) MQTT_THINGSPEAK: Iniciando ESP32-C6...
+[2026-10-01T03:31:26.953Z |    0.483 s] I (442) temperature_sensor: Range [-10°C ~ 80°C], error < 1°C
+[2026-10-01T03:31:26.953Z |    0.483 s] I (442) MQTT_THINGSPEAK: Sensor de temperatura listo: 30.80 C (Wi-Fi apagado)
+[2026-10-01T03:31:26.953Z |    0.483 s] I (452) example_connect: Start example_connect.
+[2026-10-01T03:31:26.953Z |    0.483 s] I (452) pp: pp rom version: 5b8dcfa
+[2026-10-01T03:31:27.269Z |    0.799 s] I (462) net80211: net80211 rom version: 5b8dcfa
+[2026-10-01T03:31:27.270Z |    0.799 s] I (472) wifi:wifi driver task: 40828540, prio:23, stack:6656, core=0
+[2026-10-01T03:31:27.270Z |    0.799 s] I (472) wifi:wifi firmware version: e12a754
+[2026-10-01T03:31:27.270Z |    0.799 s] I (472) wifi:wifi certification version: v7.0
+[2026-10-01T03:31:27.270Z |    0.799 s] I (472) wifi:config NVS flash: enabled
+[2026-10-01T03:31:27.270Z |    0.799 s] I (482) wifi:config nano formatting: disabled
+[2026-10-01T03:31:27.270Z |    0.799 s] I (482) wifi:mac_version:HAL_MAC_ESP32AX_761,ut_version:N, band mode:0x1
+[2026-10-01T03:31:27.270Z |    0.799 s] I (492) wifi:Init data frame dynamic rx buffer num: 32
+[2026-10-01T03:31:27.270Z |    0.799 s] I (492) wifi:Init static rx mgmt buffer num: 5
+[2026-10-01T03:31:27.270Z |    0.799 s] I (502) wifi:Init management short buffer num: 32
+[2026-10-01T03:31:27.270Z |    0.799 s] I (502) wifi:Init dynamic tx buffer num: 32
+[2026-10-01T03:31:27.270Z |    0.799 s] I (502) wifi:Init static tx FG buffer num: 2
+[2026-10-01T03:31:27.270Z |    0.799 s] I (512) wifi:Init static rx buffer size: 1700 (rxctrl:92, csi:512)
+[2026-10-01T03:31:27.270Z |    0.799 s] I (512) wifi:Init static rx buffer num: 10
+[2026-10-01T03:31:27.270Z |    0.799 s] I (522) wifi:Init dynamic rx buffer num: 32
+[2026-10-01T03:31:27.270Z |    0.799 s] I (522) wifi_init: rx ba win: 6
+[2026-10-01T03:31:27.270Z |    0.799 s] I (532) wifi_init: accept mbox: 6
+[2026-10-01T03:31:27.270Z |    0.799 s] I (532) wifi_init: tcpip mbox: 32
+[2026-10-01T03:31:27.270Z |    0.799 s] I (532) wifi_init: udp mbox: 6
+[2026-10-01T03:31:27.270Z |    0.799 s] I (532) wifi_init: tcp mbox: 6
+[2026-10-01T03:31:27.270Z |    0.799 s] I (542) wifi_init: tcp tx win: 5760
+[2026-10-01T03:31:27.270Z |    0.799 s] I (542) wifi_init: tcp rx win: 5760
+[2026-10-01T03:31:27.270Z |    0.799 s] I (542) wifi_init: tcp mss: 1440
+[2026-10-01T03:31:27.270Z |    0.799 s] I (552) wifi_init: WiFi IRAM OP enabled
+[2026-10-01T03:31:27.270Z |    0.799 s] I (552) wifi_init: WiFi RX IRAM OP enabled
+[2026-10-01T03:31:27.270Z |    0.799 s] I (552) wifi_init: WiFi SLP IRAM OP enabled
+[2026-10-01T03:31:27.270Z |    0.799 s] I (562) phy_init: phy_version 345,552b044,Jul 14 2026,10:37:00
+[2026-10-01T03:31:27.270Z |    0.799 s] I (642) wifi:11ax coex: WDEVAX_PTI0(0x55777555), WDEVAX_PTI1(0x00003377).
+[2026-10-01T03:31:27.270Z |    0.799 s] 
+[2026-10-01T03:31:27.270Z |    0.799 s] I (652) wifi:mode : sta (e8:f6:0a:fc:91:14)
+[2026-10-01T03:31:27.270Z |    0.799 s] I (652) wifi:enable tsf
+[2026-10-01T03:31:27.270Z |    0.799 s] I (652) example_connect: Connecting to <SSID>...
+[2026-10-01T03:31:27.270Z |    0.799 s] W (652) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+[2026-10-01T03:31:27.270Z |    0.799 s] I (662) example_connect: Waiting for IP(s)
+[2026-10-01T03:31:29.787Z |    3.317 s] I (3182) wifi:new:<5,0>, old:<1,0>, ap:<255,255>, sta:<5,0>, prof:1, snd_ch_cfg:0x0
+[2026-10-01T03:31:29.787Z |    3.317 s] I (3182) wifi:(connect)dot11_authmode:0x3, pairwise_cipher:0x3, group_cipher:0x3
+[2026-10-01T03:31:29.787Z |    3.317 s] I (3182) wifi:state: init -> auth (0xb0)
+[2026-10-01T03:31:30.785Z |    4.315 s] I (4192) wifi:state: auth -> init (0x200)
+[2026-10-01T03:31:30.785Z |    4.315 s] I (4192) example_connect: Wi-Fi disconnected 2, trying to reconnect...
+[2026-10-01T03:31:33.200Z |    6.729 s] I (6602) wifi:(connect)dot11_authmode:0x3, pairwise_cipher:0x3, group_cipher:0x3
+[2026-10-01T03:31:33.200Z |    6.729 s] I (6602) wifi:state: init -> auth (0xb0)
+[2026-10-01T03:31:34.196Z |    7.725 s] I (7602) wifi:state: auth -> init (0x200)
+[2026-10-01T03:31:34.196Z |    7.725 s] I (7602) example_connect: Wi-Fi disconnected 2, trying to reconnect...
+[2026-10-01T03:31:36.607Z |   10.136 s] I (10012) wifi:(connect)dot11_authmode:0x3, pairwise_cipher:0x3, group_cipher:0x3
+[2026-10-01T03:31:36.607Z |   10.136 s] I (10012) wifi:state: init -> auth (0xb0)
+[2026-10-01T03:31:37.610Z |   11.140 s] I (11012) wifi:state: auth -> init (0x200)
+[2026-10-01T03:31:37.610Z |   11.140 s] I (11012) example_connect: Wi-Fi disconnected 2, trying to reconnect...
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13422) wifi:(connect)dot11_authmode:0x3, pairwise_cipher:0x3, group_cipher:0x3
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13422) wifi:state: init -> auth (0xb0)
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13422) wifi:state: auth -> assoc (0x0)
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13432) wifi:(assoc)RESP, Extended Capabilities length:8, operating_mode_notification:0
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13432) wifi:(assoc)RESP, Extended Capabilities, MBSSID:0, TWT Responder:0, OBSS Narrow Bandwidth RU In OFDMA Tolerance:0
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13442) wifi:state: assoc -> run (0x10)
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13442) wifi:(trc)phytype:CBW20-SGI, snr:10, maxRate:144, highestRateIdx:0
+[2026-10-01T03:31:40.085Z |   13.614 s] W (13452) wifi:(trc)band:2G, phymode:3, highestRateIdx:0, lowestRateIdx:11, dataSchedTableSize:14
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13462) wifi:(trc)band:2G, rate(L-MCS0, rateIdx:8), ampdu(rate:L-MCS0, schedIdx(8, stop:8)), snr:10, ampduState:wait operational
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13472) wifi:ifidx:0, rssi:-86, nf:-96, phytype(0x3, CBW20-SGI), phymode(0x3, 11bgn), max_rate:144, he:0, vht:0, ht:1
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13482) wifi:(ht)max.RxAMPDULenExponent:3(65535 bytes), MMSS:5(4 us)
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13502) wifi:connected with <SSID>, aid = 109, channel 5, BW20, bssid = <BSSID>
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13502) wifi:security: WPA2-PSK, phy: bgn, rssi: -86, cipher(pairwise:0x3, group:0x3), pmf:0
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13512) wifi:pm start, type: 1, twt_start:0
+[2026-10-01T03:31:40.085Z |   13.614 s] 
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13512) wifi:pm start, type:1, aid:0x6d, trans-BSSID:<BSSID>, BSSID[5]:0xe8, mbssid(max-indicator:0, index:0), he:0
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13522) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13532) wifi:set rx beacon pti, rx_bcn_pti: 10, bcn_timeout: 25000, mt_pti: 10, mt_time: 10000
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13542) wifi:[ADDBA]TX addba request, tid:0, dialogtoken:1, bufsize:64, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x0)
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13552) wifi:[ADDBA]TX addba request, tid:7, dialogtoken:2, bufsize:64, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x20)
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13562) wifi:[ADDBA]TX addba request, tid:5, dialogtoken:3, bufsize:64, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x0)
+[2026-10-01T03:31:40.085Z |   13.614 s] I (13582) wifi:[ADDBA]RX addba response, status:0, tid:0/tb:1(0xa1), bufsize:64, batimeout:0, txa_wnd:64
+[2026-10-01T03:31:40.214Z |   13.743 s] I (13582) wifi:[ADDBA]RX addba response, status:0, tid:7/tb:1(0xa1), bufsize:64, batimeout:0, txa_wnd:64
+[2026-10-01T03:31:40.214Z |   13.743 s] I (13592) wifi:[ADDBA]RX addba response, status:0, tid:5/tb:1(0xa1), bufsize:64, batimeout:0, txa_wnd:64
+[2026-10-01T03:31:40.214Z |   13.743 s] I (13602) wifi:AP's beacon interval = 102400 us, DTIM period = 1
+[2026-10-01T03:31:43.415Z |   16.945 s] I (16792) esp_netif_handlers: example_netif_sta ip: 192.168.1.191, mask: 255.255.255.0, gw: 192.168.1.254
+[2026-10-01T03:31:43.415Z |   16.945 s] I (16792) example_connect: Got IPv4 event: Interface "example_netif_sta" address: 192.168.1.191
+[2026-10-01T03:31:43.415Z |   16.945 s] I (16792) example_common: Connected to example_netif_sta
+[2026-10-01T03:31:43.415Z |   16.945 s] I (16802) example_common: - IPv4 address: 192.168.1.191,
+[2026-10-01T03:31:43.415Z |   16.945 s] I (16802) MQTT_THINGSPEAK: Broker: mqtt://broker.hivemq.com | canal: esp32c6-e8f60afc9114
+[2026-10-01T03:31:43.415Z |   16.945 s] I (16812) main_task: Returned from app_main()
+[2026-10-01T03:31:43.887Z |   17.417 s] I (17282) MQTT_THINGSPEAK: Conectado exitosamente al Broker
+[2026-10-01T03:31:43.887Z |   17.417 s] I (17282) MQTT_THINGSPEAK: Temperatura 31.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=31.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:32:03.873Z |   37.402 s] I (37282) MQTT_THINGSPEAK: Temperatura 29.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=29.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:32:23.886Z |   57.416 s] I (57282) MQTT_THINGSPEAK: Temperatura 29.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=29.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:32:43.885Z |   77.414 s] I (77282) MQTT_THINGSPEAK: Temperatura 28.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=28.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:33:03.883Z |   97.413 s] I (97282) MQTT_THINGSPEAK: Temperatura 28.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=28.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:33:23.877Z |  117.406 s] I (117282) MQTT_THINGSPEAK: Temperatura 28.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=28.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:33:43.889Z |  137.418 s] I (137282) MQTT_THINGSPEAK: Temperatura 27.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=27.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:34:03.878Z |  157.408 s] I (157282) MQTT_THINGSPEAK: Temperatura 27.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=27.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:34:23.887Z |  177.416 s] I (177282) MQTT_THINGSPEAK: Temperatura 27.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=27.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:34:29.566Z |  183.096 s] W (182962) wifi:<ba-add>idx:0, ifx:0, tid:0, TAHI:0x100e8df, TALO:0xba2683e4, (ssn:1513, win:64, cur_ssn:1513), CONF:0xc0000005
+[2026-10-01T03:34:43.885Z |  197.415 s] I (197282) MQTT_THINGSPEAK: Temperatura 27.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=27.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:35:03.887Z |  217.417 s] I (217282) MQTT_THINGSPEAK: Temperatura 28.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=28.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:35:23.890Z |  237.420 s] I (237282) MQTT_THINGSPEAK: Temperatura 27.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=27.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:35:43.887Z |  257.417 s] I (257282) MQTT_THINGSPEAK: Temperatura 27.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=27.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:36:03.891Z |  277.420 s] I (277282) MQTT_THINGSPEAK: Temperatura 27.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=27.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:36:23.894Z |  297.423 s] I (297282) MQTT_THINGSPEAK: Temperatura 28.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=28.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:36:43.884Z |  317.414 s] I (317282) MQTT_THINGSPEAK: Temperatura 27.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=27.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:37:03.894Z |  337.424 s] I (337282) MQTT_THINGSPEAK: Temperatura 27.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=27.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:37:23.886Z |  357.416 s] I (357282) MQTT_THINGSPEAK: Temperatura 26.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=26.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:37:43.892Z |  377.422 s] I (377282) MQTT_THINGSPEAK: Temperatura 28.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=28.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:38:03.890Z |  397.420 s] I (397282) MQTT_THINGSPEAK: Temperatura 30.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=30.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:38:23.889Z |  417.419 s] I (417282) MQTT_THINGSPEAK: Temperatura 30.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=30.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:38:43.888Z |  437.417 s] I (437282) MQTT_THINGSPEAK: Temperatura 29.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=29.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:39:03.896Z |  457.426 s] I (457282) MQTT_THINGSPEAK: Temperatura 29.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=29.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:39:23.902Z |  477.431 s] I (477282) MQTT_THINGSPEAK: Temperatura 28.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=28.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:39:43.897Z |  497.427 s] I (497282) MQTT_THINGSPEAK: Temperatura 28.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=28.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:40:03.899Z |  517.428 s] I (517282) MQTT_THINGSPEAK: Temperatura 27.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=27.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:40:23.898Z |  537.427 s] I (537282) MQTT_THINGSPEAK: Temperatura 27.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=27.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:40:43.894Z |  557.423 s] I (557282) MQTT_THINGSPEAK: Temperatura 27.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=27.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:41:03.895Z |  577.425 s] I (577282) MQTT_THINGSPEAK: Temperatura 26.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=26.80&status=MQTTPublish (ID 0)
+[2026-10-01T03:41:23.900Z |  597.430 s] I (597282) MQTT_THINGSPEAK: Temperatura 55.80 C -> channels/esp32c6-e8f60afc9114/publish: field1=55.80&status=MQTTPublish (ID 0)

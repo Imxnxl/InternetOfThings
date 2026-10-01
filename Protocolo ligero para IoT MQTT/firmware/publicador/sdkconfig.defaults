@@ -1,0 +1,16 @@
+# Valores iniciales de la configuracion (los que no se tocan en menuconfig).
+CONFIG_IDF_TARGET="esp32c6"
+
+# Con Wi-Fi y MQTT el programa ocupa ~1,06 MB y no cabe en la particion de
+# 1 MB que trae ESP-IDF por defecto. Esta tabla deja 1,5 MB para el programa
+# y cabe en una flash de 2 MB (la placa tiene 16 MB).
+CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y
+
+# Wi-Fi con protocol_examples_common. El SSID y la contrasena NO van aqui,
+# porque este archivo se sube al repositorio: se ponen con
+#   idf.py menuconfig -> Example Connection Configuration
+# y quedan en sdkconfig, que esta en .gitignore.
+CONFIG_EXAMPLE_CONNECT_WIFI=y
+# Solo IPv4: el broker de ThingSpeak se alcanza por IPv4 y asi la conexion
+# no espera ademas a una direccion IPv6.
+# CONFIG_EXAMPLE_CONNECT_IPV6 is not set

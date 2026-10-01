@@ -1,0 +1,23 @@
+# ESP-IDF: lo que genera la compilacion y los componentes que descarga el
+# gestor de componentes (espressif/mqtt...). dependencies.lock si se sube.
+firmware/*/build/
+firmware/*/managed_components/
+
+# sdkconfig guarda el SSID y la contrasena del Wi-Fi (menuconfig): no se sube.
+# La configuracion de partida esta en sdkconfig.defaults.
+firmware/*/sdkconfig
+firmware/*/sdkconfig.old
+
+# Credenciales de ThingSpeak (se crean copiando credenciales.ejemplo.h)
+firmware/credenciales.h
+
+# Dependencias de node para generar el .docx (npm install en scripts/)
+scripts/node_modules/
+scripts/package-lock.json
+
+# Ficheros temporales de Word mientras un documento esta abierto
+~$*
+
+# El enunciado del profesor no se redistribuye: conserva la titularidad de su
+# autor (mismo criterio que en las practicas anteriores). Ver el README.
+Practica.pdf

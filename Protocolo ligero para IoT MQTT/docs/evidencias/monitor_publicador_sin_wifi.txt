@@ -1,0 +1,204 @@
+[   0.236 s] ESP-ROM:esp32c6-20220919
+[   0.236 s] Build:Sep 19 2022
+[   0.236 s] rst:0x1 (POWERON),boot:0x3c (SPI_FAST_FLASH_BOOT)
+[   0.236 s] SPIWP:0xee
+[   0.236 s] mode:DIO, clock div:2
+[   0.236 s] load:0x40875730,len:0x1648
+[   0.236 s] load:0x4086b910,len:0xdbc
+[   0.236 s] load:0x4086e610,len:0x31f0
+[   0.236 s] entry 0x4086b91a
+[   0.236 s] I (23) boot: ESP-IDF v6.1 2nd stage bootloader
+[   0.236 s] I (24) boot: compile time Sep 30 2026 20:00:49
+[   0.236 s] I (24) boot: chip revision: v0.2
+[   0.236 s] I (24) boot: efuse block revision: v0.3
+[   0.236 s] I (27) boot.esp32c6: SPI Speed      : 80MHz
+[   0.236 s] I (31) boot.esp32c6: SPI Mode       : DIO
+[   0.236 s] I (35) boot.esp32c6: SPI Flash Size : 2MB
+[   0.236 s] I (38) boot: Enabling RNG early entropy source...
+[   0.236 s] I (43) boot: Partition Table:
+[   0.236 s] I (45) boot: ## Label            Usage          Type ST Offset   Length
+[   0.236 s] I (52) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+[   0.236 s] I (58) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+[   0.236 s] I (65) boot:  2 factory          factory app      00 00 00010000 00177000
+[   0.236 s] I (71) boot: End of partition table
+[   0.236 s] I (75) esp_image: segment 0: paddr=00010020 vaddr=420c8020 size=250dch (151772) map
+[   0.236 s] I (112) esp_image: segment 1: paddr=00035104 vaddr=40800000 size=02f14h ( 12052) load
+[   0.236 s] I (115) esp_image: segment 2: paddr=00038020 vaddr=42000020 size=c20bch (794812) map
+[   0.480 s] I (269) esp_image: segment 3: paddr=000fa0e4 vaddr=40802f14 size=196cch (104140) load
+[   0.480 s] I (298) boot: Loaded app from partition at offset 0x10000
+[   0.480 s] I (298) boot: Disabling RNG early entropy source...
+[   0.480 s] I (308) cpu_start: Unicore app
+[   0.480 s] I (317) cpu_start: GPIO 17 and 16 are used as console UART I/O pins
+[   0.480 s] I (317) cpu_start: Pro cpu start user code
+[   0.480 s] I (317) cpu_start: cpu freq: 160000000 Hz
+[   0.480 s] I (319) app_init: Application information:
+[   0.480 s] I (323) app_init: Project name:     mqtt_publicador
+[   0.481 s] I (327) app_init: App version:      a2bf846
+[   0.481 s] I (331) app_init: Compile time:     Sep 30 2026 20:00:39
+[   0.481 s] I (336) app_init: ELF file SHA256:  6bc606bdc...
+[   0.481 s] I (341) app_init: ESP-IDF:          v6.1
+[   0.481 s] I (344) efuse_init: Min chip rev:     v0.0
+[   0.481 s] I (348) efuse_init: Max chip rev:     v0.99 
+[   0.481 s] I (352) efuse_init: Chip rev:         v0.2
+[   0.481 s] I (356) heap_init: Initializing. RAM available for dynamic allocation:
+[   0.481 s] I (362) heap_init: At 408224A0 len 0005A170 (360 KiB): RAM
+[   0.481 s] I (367) heap_init: At 4087C610 len 00002F54 (11 KiB): RAM
+[   0.481 s] I (373) heap_init: At 50000000 len 00003FE8 (15 KiB): RTCRAM
+[   0.481 s] W (379) spi_flash: Detected boya flash chip but using generic driver. For optimal functionality, enable `SPI_FLASH_SUPPORT_BOYA_CHIP` in menuconfig
+[   0.481 s] I (391) spi_flash: detected chip: generic
+[   0.481 s] I (395) spi_flash: flash io: dio
+[   0.481 s] W (398) spi_flash: Detected size(16384k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+[   0.481 s] I (410) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+[   0.481 s] I (416) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+[   0.481 s] I (423) coexist: coex firmware version: a830d28
+[   0.481 s] I (427) coexist: coexist rom version 5b8dcfa
+[   0.481 s] I (431) main_task: Started on CPU0
+[   0.481 s] I (431) main_task: Calling app_main()
+[   0.481 s] I (431) MQTT_THINGSPEAK: Iniciando ESP32-C6...
+[   0.481 s] I (441) temperature_sensor: Range [-10°C ~ 80°C], error < 1°C
+[   0.481 s] I (441) MQTT_THINGSPEAK: Sensor de temperatura listo: 29.80 C (Wi-Fi apagado)
+[   0.802 s] W (451) MQTT_THINGSPEAK: credenciales.h aun tiene los valores de la plantilla: el broker rechazara la conexion
+[   0.802 s] I (471) example_connect: Start example_connect.
+[   0.802 s] I (471) pp: pp rom version: 5b8dcfa
+[   0.802 s] I (471) net80211: net80211 rom version: 5b8dcfa
+[   0.802 s] I (481) wifi:wifi driver task: 40828500, prio:23, stack:6656, core=0
+[   0.802 s] I (481) wifi:wifi firmware version: e12a754
+[   0.802 s] I (481) wifi:wifi certification version: v7.0
+[   0.802 s] I (481) wifi:config NVS flash: enabled
+[   0.802 s] I (491) wifi:config nano formatting: disabled
+[   0.802 s] I (491) wifi:mac_version:HAL_MAC_ESP32AX_761,ut_version:N, band mode:0x1
+[   0.802 s] I (501) wifi:Init data frame dynamic rx buffer num: 32
+[   0.802 s] I (501) wifi:Init static rx mgmt buffer num: 5
+[   0.802 s] I (511) wifi:Init management short buffer num: 32
+[   0.802 s] I (511) wifi:Init dynamic tx buffer num: 32
+[   0.802 s] I (511) wifi:Init static tx FG buffer num: 2
+[   0.802 s] I (521) wifi:Init static rx buffer size: 1700 (rxctrl:92, csi:512)
+[   0.802 s] I (521) wifi:Init static rx buffer num: 10
+[   0.802 s] I (531) wifi:Init dynamic rx buffer num: 32
+[   0.802 s] I (531) wifi_init: rx ba win: 6
+[   0.802 s] I (541) wifi_init: accept mbox: 6
+[   0.802 s] I (541) wifi_init: tcpip mbox: 32
+[   0.802 s] I (541) wifi_init: udp mbox: 6
+[   0.802 s] I (541) wifi_init: tcp mbox: 6
+[   0.802 s] I (551) wifi_init: tcp tx win: 5760
+[   0.802 s] I (551) wifi_init: tcp rx win: 5760
+[   0.802 s] I (551) wifi_init: tcp mss: 1440
+[   0.802 s] I (561) wifi_init: WiFi IRAM OP enabled
+[   0.802 s] I (561) wifi_init: WiFi RX IRAM OP enabled
+[   0.802 s] I (561) wifi_init: WiFi SLP IRAM OP enabled
+[   0.802 s] I (571) phy_init: phy_version 345,552b044,Jul 14 2026,10:37:00
+[   0.802 s] I (651) wifi:11ax coex: WDEVAX_PTI0(0x55777555), WDEVAX_PTI1(0x00003377).
+[   0.802 s] 
+[   0.802 s] I (661) wifi:mode : sta (e8:f6:0a:fc:91:14)
+[   0.802 s] I (661) wifi:enable tsf
+[   0.802 s] I (661) example_connect: Connecting to myssid...
+[   0.802 s] W (661) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+[   0.802 s] I (671) example_connect: Waiting for IP(s)
+[   3.208 s] I (3081) example_connect: Wi-Fi disconnected 201, trying to reconnect...
+[   5.607 s] I (5491) example_connect: Wi-Fi disconnected 201, trying to reconnect...
+[   8.015 s] I (7891) example_connect: Wi-Fi disconnected 201, trying to reconnect...
+[  10.421 s] I (10301) example_connect: Wi-Fi disconnected 201, trying to reconnect...
+[  12.835 s] I (12711) example_connect: Wi-Fi disconnected 201, trying to reconnect...
+[  15.236 s] I (15121) example_connect: Wi-Fi disconnected 201, trying to reconnect...
+[  17.661 s] I (17521) example_connect: WiFi Connect failed 7 times, stop reconnect.
+[  17.661 s] E (17521) MQTT_THINGSPEAK: No se pudo conectar al Wi-Fi. Revise el SSID y la contrasena en idf.py menuconfig -> Example Connection Configuration (solo redes de 2,4 GHz). Reinicio en 10 s...
+[  27.810 s] I (27531) wifi:flush txq
+[  27.810 s] I (27531) wifi:stop sw txq
+[  27.810 s] I (27531) wifi:lmac stop hw txq
+[  27.810 s] ESP-ROM:esp32c6-20220919
+[  27.810 s] Build:Sep 19 2022
+[  27.810 s] rst:0xc (SW_CPU),boot:0x3c (SPI_FAST_FLASH_BOOT)
+[  27.810 s] Saved PC:0x4001975a
+[  27.810 s] SPIWP:0xee
+[  27.810 s] mode:DIO, clock div:2
+[  27.810 s] load:0x40875730,len:0x1648
+[  27.810 s] load:0x4086b910,len:0xdbc
+[  27.810 s] load:0x4086e610,len:0x31f0
+[  27.810 s] entry 0x4086b91a
+[  27.810 s] I (27) boot: ESP-IDF v6.1 2nd stage bootloader
+[  27.810 s] I (27) boot: compile time Sep 30 2026 20:00:49
+[  27.810 s] I (28) boot: chip revision: v0.2
+[  27.810 s] I (29) boot: efuse block revision: v0.3
+[  27.810 s] I (30) boot.esp32c6: SPI Speed      : 80MHz
+[  27.810 s] I (34) boot.esp32c6: SPI Mode       : DIO
+[  27.810 s] I (38) boot.esp32c6: SPI Flash Size : 2MB
+[  27.810 s] I (42) boot: Enabling RNG early entropy source...
+[  27.810 s] I (46) boot: Partition Table:
+[  27.810 s] I (49) boot: ## Label            Usage          Type ST Offset   Length
+[  27.810 s] I (55) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+[  27.810 s] I (62) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+[  27.810 s] I (68) boot:  2 factory          factory app      00 00 00010000 00177000
+[  27.810 s] I (75) boot: End of partition table
+[  27.810 s] I (78) esp_image: segment 0: paddr=00010020 vaddr=420c8020 size=250dch (151772) map
+[  27.810 s] I (144) esp_image: segment 1: paddr=00035104 vaddr=40800000 size=02f14h ( 12052) load
+[  27.810 s] I (150) esp_image: segment 2: paddr=00038020 vaddr=42000020 size=c20bch (794812) map
+[  28.236 s] I (455) esp_image: segment 3: paddr=000fa0e4 vaddr=40802f14 size=196cch (104140) load
+[  28.237 s] I (511) boot: Loaded app from partition at offset 0x10000
+[  28.237 s] I (512) boot: Disabling RNG early entropy source...
+[  28.237 s] I (522) cpu_start: Unicore app
+[  28.237 s] I (531) cpu_start: GPIO 17 and 16 are used as console UART I/O pins
+[  28.237 s] I (531) cpu_start: Pro cpu start user code
+[  28.237 s] I (531) cpu_start: cpu freq: 160000000 Hz
+[  28.237 s] I (533) app_init: Application information:
+[  28.237 s] I (537) app_init: Project name:     mqtt_publicador
+[  28.237 s] I (542) app_init: App version:      a2bf846
+[  28.237 s] I (546) app_init: Compile time:     Sep 30 2026 20:00:39
+[  28.237 s] I (551) app_init: ELF file SHA256:  6bc606bdc...
+[  28.237 s] I (555) app_init: ESP-IDF:          v6.1
+[  28.237 s] I (559) efuse_init: Min chip rev:     v0.0
+[  28.237 s] I (562) efuse_init: Max chip rev:     v0.99 
+[  28.237 s] I (566) efuse_init: Chip rev:         v0.2
+[  28.237 s] I (570) heap_init: Initializing. RAM available for dynamic allocation:
+[  28.237 s] I (577) heap_init: At 408224A0 len 0005A170 (360 KiB): RAM
+[  28.237 s] I (582) heap_init: At 4087C610 len 00002F54 (11 KiB): RAM
+[  28.237 s] I (587) heap_init: At 50000000 len 00003FE8 (15 KiB): RTCRAM
+[  28.237 s] W (593) spi_flash: Detected boya flash chip but using generic driver. For optimal functionality, enable `SPI_FLASH_SUPPORT_BOYA_CHIP` in menuconfig
+[  28.237 s] I (605) spi_flash: detected chip: generic
+[  28.237 s] I (609) spi_flash: flash io: dio
+[  28.237 s] W (612) spi_flash: Detected size(16384k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+[  28.237 s] I (625) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+[  28.237 s] I (630) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+[  28.237 s] I (637) coexist: coex firmware version: a830d28
+[  28.237 s] I (641) coexist: coexist rom version 5b8dcfa
+[  28.237 s] I (646) main_task: Started on CPU0
+[  28.237 s] I (646) main_task: Calling app_main()
+[  28.237 s] I (646) MQTT_THINGSPEAK: Iniciando ESP32-C6...
+[  28.237 s] I (656) temperature_sensor: Range [-10°C ~ 80°C], error < 1°C
+[  28.237 s] I (656) MQTT_THINGSPEAK: Sensor de temperatura listo: 29.80 C (Wi-Fi apagado)
+[  28.559 s] W (666) MQTT_THINGSPEAK: credenciales.h aun tiene los valores de la plantilla: el broker rechazara la conexion
+[  28.559 s] I (686) example_connect: Start example_connect.
+[  28.559 s] I (686) pp: pp rom version: 5b8dcfa
+[  28.559 s] I (686) net80211: net80211 rom version: 5b8dcfa
+[  28.559 s] I (696) wifi:wifi driver task: 40828500, prio:23, stack:6656, core=0
+[  28.559 s] I (696) wifi:wifi firmware version: e12a754
+[  28.559 s] I (696) wifi:wifi certification version: v7.0
+[  28.559 s] I (696) wifi:config NVS flash: enabled
+[  28.559 s] I (706) wifi:config nano formatting: disabled
+[  28.559 s] I (706) wifi:mac_version:HAL_MAC_ESP32AX_761,ut_version:N, band mode:0x1
+[  28.559 s] I (716) wifi:Init data frame dynamic rx buffer num: 32
+[  28.559 s] I (716) wifi:Init static rx mgmt buffer num: 5
+[  28.559 s] I (726) wifi:Init management short buffer num: 32
+[  28.559 s] I (726) wifi:Init dynamic tx buffer num: 32
+[  28.559 s] I (726) wifi:Init static tx FG buffer num: 2
+[  28.559 s] I (736) wifi:Init static rx buffer size: 1700 (rxctrl:92, csi:512)
+[  28.559 s] I (736) wifi:Init static rx buffer num: 10
+[  28.559 s] I (746) wifi:Init dynamic rx buffer num: 32
+[  28.559 s] I (746) wifi_init: rx ba win: 6
+[  28.559 s] I (756) wifi_init: accept mbox: 6
+[  28.559 s] I (756) wifi_init: tcpip mbox: 32
+[  28.559 s] I (756) wifi_init: udp mbox: 6
+[  28.559 s] I (756) wifi_init: tcp mbox: 6
+[  28.559 s] I (766) wifi_init: tcp tx win: 5760
+[  28.559 s] I (766) wifi_init: tcp rx win: 5760
+[  28.559 s] I (766) wifi_init: tcp mss: 1440
+[  28.559 s] I (776) wifi_init: WiFi IRAM OP enabled
+[  28.559 s] I (776) wifi_init: WiFi RX IRAM OP enabled
+[  28.559 s] I (776) wifi_init: WiFi SLP IRAM OP enabled
+[  28.559 s] I (786) phy_init: phy_version 345,552b044,Jul 14 2026,10:37:00
+[  28.559 s] I (866) wifi:11ax coex: WDEVAX_PTI0(0x55777555), WDEVAX_PTI1(0x00003377).
+[  28.559 s] 
+[  28.559 s] I (876) wifi:mode : sta (e8:f6:0a:fc:91:14)
+[  28.559 s] I (876) wifi:enable tsf
+[  28.559 s] I (876) example_connect: Connecting to myssid...
+[  28.559 s] W (876) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+[  28.559 s] I (886) example_connect: Waiting for IP(s)

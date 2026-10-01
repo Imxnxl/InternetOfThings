@@ -1,0 +1,32 @@
+# Lectura equivalente enviada por HTTP a ThingSpeak, medida con curl 8.18.0 el 2026-10-01T03:35:35Z
+# La clave es de ejemplo, asi que ThingSpeak responde 400 y el cuerpo "0"; con una
+# clave valida responderia 200 con el numero de la entrada en el cuerpo; no se midio, pero
+# las cabeceras son del mismo tipo y el tamano de la respuesta seria del mismo orden.
+
+peticion=126 B  cabeceras_respuesta=496 B  cuerpo=1 B  codigo=400  conexion_tcp=0.109685s  total=0.220541s
+
+## Peticion (texto enviado)
+GET /update?api_key=XXXXXXXXXXXXXXXX&field1=29.80 HTTP/1.1
+Host: api.thingspeak.com
+User-Agent: curl/8.18.0
+Accept: */*
+
+
+## Respuesta (cabeceras recibidas)
+HTTP/1.1 400 Bad Request
+Date: Thu, 01 Oct 2026 03:35:33 GMT
+Content-Type: text/plain; charset=utf-8
+Content-Length: 1
+Connection: keep-alive
+Status: 400 Bad Request
+cache-control: no-cache
+access-control-allow-origin: *
+vary: Accept
+access-control-max-age: 1800
+x-request-id: ddde3c87-bb36-4ea5-aa73-176cf0d47286
+access-control-allow-headers: origin, content-type, X-Requested-With
+access-control-allow-methods: GET, POST, PUT, OPTIONS, DELETE, PATCH
+x-frame-options: SAMEORIGIN
+
+## Cuerpo
+0

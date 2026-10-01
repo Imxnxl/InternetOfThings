@@ -1,0 +1,251 @@
+[2026-10-01T03:44:37.458Z |    0.234 s] ESP-ROM:esp32c6-20220919
+[2026-10-01T03:44:37.458Z |    0.234 s] Build:Sep 19 2022
+[2026-10-01T03:44:37.458Z |    0.234 s] rst:0x1 (POWERON),boot:0x3c (SPI_FAST_FLASH_BOOT)
+[2026-10-01T03:44:37.458Z |    0.234 s] SPIWP:0xee
+[2026-10-01T03:44:37.458Z |    0.234 s] mode:DIO, clock div:2
+[2026-10-01T03:44:37.458Z |    0.234 s] load:0x40875730,len:0x1648
+[2026-10-01T03:44:37.458Z |    0.234 s] load:0x4086b910,len:0xdbc
+[2026-10-01T03:44:37.458Z |    0.234 s] load:0x4086e610,len:0x31f0
+[2026-10-01T03:44:37.458Z |    0.234 s] entry 0x4086b91a
+[2026-10-01T03:44:37.458Z |    0.234 s] I (23) boot: ESP-IDF v6.1 2nd stage bootloader
+[2026-10-01T03:44:37.458Z |    0.234 s] I (24) boot: compile time Sep 30 2026 20:02:28
+[2026-10-01T03:44:37.458Z |    0.234 s] I (24) boot: chip revision: v0.2
+[2026-10-01T03:44:37.458Z |    0.234 s] I (24) boot: efuse block revision: v0.3
+[2026-10-01T03:44:37.458Z |    0.234 s] I (27) boot.esp32c6: SPI Speed      : 80MHz
+[2026-10-01T03:44:37.458Z |    0.234 s] I (31) boot.esp32c6: SPI Mode       : DIO
+[2026-10-01T03:44:37.458Z |    0.234 s] I (35) boot.esp32c6: SPI Flash Size : 2MB
+[2026-10-01T03:44:37.458Z |    0.234 s] I (38) boot: Enabling RNG early entropy source...
+[2026-10-01T03:44:37.458Z |    0.234 s] I (43) boot: Partition Table:
+[2026-10-01T03:44:37.458Z |    0.234 s] I (45) boot: ## Label            Usage          Type ST Offset   Length
+[2026-10-01T03:44:37.458Z |    0.234 s] I (52) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+[2026-10-01T03:44:37.458Z |    0.234 s] I (58) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+[2026-10-01T03:44:37.458Z |    0.234 s] I (65) boot:  2 factory          factory app      00 00 00010000 00177000
+[2026-10-01T03:44:37.458Z |    0.234 s] I (71) boot: End of partition table
+[2026-10-01T03:44:37.458Z |    0.234 s] I (75) esp_image: segment 0: paddr=00010020 vaddr=420c8020 size=24e24h (151076) map
+[2026-10-01T03:44:37.458Z |    0.234 s] I (111) esp_image: segment 1: paddr=00034e4c vaddr=40800000 size=031cch ( 12748) load
+[2026-10-01T03:44:37.458Z |    0.234 s] I (115) esp_image: segment 2: paddr=00038020 vaddr=42000020 size=c2b68h (797544) map
+[2026-10-01T03:44:37.702Z |    0.478 s] I (270) esp_image: segment 3: paddr=000fab90 vaddr=408031cc size=154b0h ( 87216) load
+[2026-10-01T03:44:37.702Z |    0.478 s] I (289) esp_image: segment 4: paddr=00110048 vaddr=40818680 size=03e64h ( 15972) load
+[2026-10-01T03:44:37.702Z |    0.478 s] I (299) boot: Loaded app from partition at offset 0x10000
+[2026-10-01T03:44:37.702Z |    0.478 s] I (299) boot: Disabling RNG early entropy source...
+[2026-10-01T03:44:37.702Z |    0.478 s] I (309) cpu_start: Unicore app
+[2026-10-01T03:44:37.702Z |    0.478 s] I (318) cpu_start: GPIO 17 and 16 are used as console UART I/O pins
+[2026-10-01T03:44:37.702Z |    0.478 s] I (318) cpu_start: Pro cpu start user code
+[2026-10-01T03:44:37.702Z |    0.478 s] I (318) cpu_start: cpu freq: 160000000 Hz
+[2026-10-01T03:44:37.702Z |    0.478 s] I (320) app_init: Application information:
+[2026-10-01T03:44:37.702Z |    0.478 s] I (324) app_init: Project name:     mqtt_suscriptor
+[2026-10-01T03:44:37.702Z |    0.478 s] I (328) app_init: App version:      a2bf846-dirty
+[2026-10-01T03:44:37.702Z |    0.478 s] I (333) app_init: Compile time:     Sep 30 2026 20:57:51
+[2026-10-01T03:44:37.702Z |    0.478 s] I (338) app_init: ELF file SHA256:  f86c9352e...
+[2026-10-01T03:44:37.702Z |    0.478 s] I (342) app_init: ESP-IDF:          v6.1
+[2026-10-01T03:44:37.702Z |    0.478 s] I (346) efuse_init: Min chip rev:     v0.0
+[2026-10-01T03:44:37.702Z |    0.478 s] I (350) efuse_init: Max chip rev:     v0.99 
+[2026-10-01T03:44:37.702Z |    0.478 s] I (354) efuse_init: Chip rev:         v0.2
+[2026-10-01T03:44:37.702Z |    0.478 s] I (358) heap_init: Initializing. RAM available for dynamic allocation:
+[2026-10-01T03:44:37.702Z |    0.478 s] I (364) heap_init: At 40822390 len 0005A280 (360 KiB): RAM
+[2026-10-01T03:44:37.702Z |    0.478 s] I (369) heap_init: At 4087C610 len 00002F54 (11 KiB): RAM
+[2026-10-01T03:44:37.702Z |    0.478 s] I (374) heap_init: At 50000000 len 00003FE8 (15 KiB): RTCRAM
+[2026-10-01T03:44:37.702Z |    0.478 s] W (380) spi_flash: Detected boya flash chip but using generic driver. For optimal functionality, enable `SPI_FLASH_SUPPORT_BOYA_CHIP` in menuconfig
+[2026-10-01T03:44:37.702Z |    0.478 s] I (393) spi_flash: detected chip: generic
+[2026-10-01T03:44:37.702Z |    0.478 s] I (396) spi_flash: flash io: dio
+[2026-10-01T03:44:37.702Z |    0.478 s] W (399) spi_flash: Detected size(16384k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+[2026-10-01T03:44:37.702Z |    0.479 s] I (412) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+[2026-10-01T03:44:37.702Z |    0.479 s] I (418) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+[2026-10-01T03:44:37.702Z |    0.479 s] I (424) coexist: coex firmware version: a830d28
+[2026-10-01T03:44:37.702Z |    0.479 s] I (429) coexist: coexist rom version 5b8dcfa
+[2026-10-01T03:44:37.702Z |    0.479 s] I (433) main_task: Started on CPU0
+[2026-10-01T03:44:37.702Z |    0.479 s] I (433) main_task: Calling app_main()
+[2026-10-01T03:44:37.702Z |    0.479 s] I (433) MQTT_SUB_THINGSPEAK: Iniciando ESP32-C6 en modo Suscriptor...
+[2026-10-01T03:44:37.702Z |    0.479 s] I (443) example_connect: Start example_connect.
+[2026-10-01T03:44:37.702Z |    0.479 s] I (443) pp: pp rom version: 5b8dcfa
+[2026-10-01T03:44:38.003Z |    0.779 s] I (443) net80211: net80211 rom version: 5b8dcfa
+[2026-10-01T03:44:38.003Z |    0.779 s] I (463) wifi:wifi driver task: 40828398, prio:23, stack:6656, core=0
+[2026-10-01T03:44:38.003Z |    0.779 s] I (463) wifi:wifi firmware version: e12a754
+[2026-10-01T03:44:38.003Z |    0.779 s] I (463) wifi:wifi certification version: v7.0
+[2026-10-01T03:44:38.003Z |    0.779 s] I (463) wifi:config NVS flash: enabled
+[2026-10-01T03:44:38.003Z |    0.779 s] I (473) wifi:config nano formatting: disabled
+[2026-10-01T03:44:38.003Z |    0.779 s] I (473) wifi:mac_version:HAL_MAC_ESP32AX_761,ut_version:N, band mode:0x1
+[2026-10-01T03:44:38.003Z |    0.779 s] I (483) wifi:Init data frame dynamic rx buffer num: 32
+[2026-10-01T03:44:38.003Z |    0.779 s] I (483) wifi:Init static rx mgmt buffer num: 5
+[2026-10-01T03:44:38.003Z |    0.779 s] I (493) wifi:Init management short buffer num: 32
+[2026-10-01T03:44:38.003Z |    0.779 s] I (493) wifi:Init dynamic tx buffer num: 32
+[2026-10-01T03:44:38.003Z |    0.779 s] I (493) wifi:Init static tx FG buffer num: 2
+[2026-10-01T03:44:38.003Z |    0.779 s] I (503) wifi:Init static rx buffer size: 1700 (rxctrl:92, csi:512)
+[2026-10-01T03:44:38.003Z |    0.779 s] I (503) wifi:Init static rx buffer num: 10
+[2026-10-01T03:44:38.003Z |    0.779 s] I (513) wifi:Init dynamic rx buffer num: 32
+[2026-10-01T03:44:38.003Z |    0.779 s] I (513) wifi_init: rx ba win: 6
+[2026-10-01T03:44:38.003Z |    0.779 s] I (513) wifi_init: accept mbox: 6
+[2026-10-01T03:44:38.003Z |    0.779 s] I (523) wifi_init: tcpip mbox: 32
+[2026-10-01T03:44:38.003Z |    0.779 s] I (523) wifi_init: udp mbox: 6
+[2026-10-01T03:44:38.003Z |    0.779 s] I (523) wifi_init: tcp mbox: 6
+[2026-10-01T03:44:38.003Z |    0.779 s] I (533) wifi_init: tcp tx win: 5760
+[2026-10-01T03:44:38.003Z |    0.779 s] I (533) wifi_init: tcp rx win: 5760
+[2026-10-01T03:44:38.003Z |    0.779 s] I (533) wifi_init: tcp mss: 1440
+[2026-10-01T03:44:38.003Z |    0.779 s] I (543) wifi_init: WiFi IRAM OP enabled
+[2026-10-01T03:44:38.003Z |    0.779 s] I (543) wifi_init: WiFi RX IRAM OP enabled
+[2026-10-01T03:44:38.003Z |    0.779 s] I (543) wifi_init: WiFi SLP IRAM OP enabled
+[2026-10-01T03:44:38.003Z |    0.779 s] I (553) phy_init: phy_version 345,552b044,Jul 14 2026,10:37:00
+[2026-10-01T03:44:38.003Z |    0.779 s] I (633) wifi:11ax coex: WDEVAX_PTI0(0x55777555), WDEVAX_PTI1(0x00003377).
+[2026-10-01T03:44:38.003Z |    0.779 s] 
+[2026-10-01T03:44:38.003Z |    0.779 s] I (633) wifi:mode : sta (e8:f6:0a:fc:91:14)
+[2026-10-01T03:44:38.003Z |    0.779 s] I (633) wifi:enable tsf
+[2026-10-01T03:44:38.003Z |    0.779 s] I (643) example_connect: Connecting to <SSID>...
+[2026-10-01T03:44:38.003Z |    0.779 s] W (643) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+[2026-10-01T03:44:38.003Z |    0.779 s] I (653) example_connect: Waiting for IP(s)
+[2026-10-01T03:44:40.525Z |    3.301 s] I (3173) wifi:new:<5,0>, old:<1,0>, ap:<255,255>, sta:<5,0>, prof:1, snd_ch_cfg:0x0
+[2026-10-01T03:44:40.525Z |    3.301 s] I (3173) wifi:(connect)dot11_authmode:0x3, pairwise_cipher:0x3, group_cipher:0x3
+[2026-10-01T03:44:40.525Z |    3.301 s] I (3173) wifi:state: init -> auth (0xb0)
+[2026-10-01T03:44:41.536Z |    4.313 s] I (4173) wifi:state: auth -> init (0x200)
+[2026-10-01T03:44:41.537Z |    4.313 s] I (4183) example_connect: Wi-Fi disconnected 2, trying to reconnect...
+[2026-10-01T03:44:43.944Z |    6.720 s] I (6583) wifi:(connect)dot11_authmode:0x3, pairwise_cipher:0x3, group_cipher:0x3
+[2026-10-01T03:44:43.944Z |    6.720 s] I (6583) wifi:state: init -> auth (0xb0)
+[2026-10-01T03:44:44.940Z |    7.716 s] I (7583) wifi:state: auth -> init (0x200)
+[2026-10-01T03:44:44.940Z |    7.716 s] I (7593) example_connect: Wi-Fi disconnected 2, trying to reconnect...
+[2026-10-01T03:44:47.346Z |   10.122 s] I (9993) wifi:(connect)dot11_authmode:0x3, pairwise_cipher:0x3, group_cipher:0x3
+[2026-10-01T03:44:47.346Z |   10.122 s] I (9993) wifi:state: init -> auth (0xb0)
+[2026-10-01T03:44:48.358Z |   11.134 s] I (10993) wifi:state: auth -> init (0x200)
+[2026-10-01T03:44:48.358Z |   11.134 s] I (11003) example_connect: Wi-Fi disconnected 2, trying to reconnect...
+[2026-10-01T03:44:50.773Z |   13.549 s] I (13403) wifi:(connect)dot11_authmode:0x3, pairwise_cipher:0x3, group_cipher:0x3
+[2026-10-01T03:44:50.773Z |   13.549 s] I (13403) wifi:state: init -> auth (0xb0)
+[2026-10-01T03:44:50.773Z |   13.549 s] I (13433) wifi:state: auth -> assoc (0x0)
+[2026-10-01T03:44:51.793Z |   14.569 s] I (14433) wifi:state: assoc -> init (0x400)
+[2026-10-01T03:44:51.793Z |   14.569 s] I (14433) example_connect: Wi-Fi disconnected 4, trying to reconnect...
+[2026-10-01T03:44:54.193Z |   16.969 s] I (16843) wifi:(connect)dot11_authmode:0x3, pairwise_cipher:0x3, group_cipher:0x3
+[2026-10-01T03:44:54.193Z |   16.969 s] I (16843) wifi:state: init -> auth (0xb0)
+[2026-10-01T03:44:55.202Z |   17.978 s] I (17843) wifi:state: auth -> init (0x200)
+[2026-10-01T03:44:55.202Z |   17.979 s] I (17843) example_connect: Wi-Fi disconnected 2, trying to reconnect...
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20253) wifi:(connect)dot11_authmode:0x3, pairwise_cipher:0x3, group_cipher:0x3
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20253) wifi:state: init -> auth (0xb0)
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20253) wifi:state: auth -> assoc (0x0)
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20273) wifi:(assoc)RESP, Extended Capabilities length:8, operating_mode_notification:0
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20273) wifi:(assoc)RESP, Extended Capabilities, MBSSID:0, TWT Responder:0, OBSS Narrow Bandwidth RU In OFDMA Tolerance:0
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20283) wifi:state: assoc -> run (0x10)
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20283) wifi:(trc)phytype:CBW20-SGI, snr:17, maxRate:144, highestRateIdx:0
+[2026-10-01T03:44:57.675Z |   20.451 s] W (20293) wifi:(trc)band:2G, phymode:3, highestRateIdx:0, lowestRateIdx:11, dataSchedTableSize:14
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20293) wifi:(trc)band:2G, rate(L-MCS3, rateIdx:5), ampdu(rate:L-MCS3, schedIdx(5, stop:8)), snr:17, ampduState:wait operational
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20313) wifi:ifidx:0, rssi:-78, nf:-95, phytype(0x3, CBW20-SGI), phymode(0x3, 11bgn), max_rate:144, he:0, vht:0, ht:1
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20323) wifi:(ht)max.RxAMPDULenExponent:3(65535 bytes), MMSS:5(4 us)
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20343) wifi:connected with <SSID>, aid = 109, channel 5, BW20, bssid = <BSSID>
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20343) wifi:security: WPA2-PSK, phy: bgn, rssi: -78, cipher(pairwise:0x3, group:0x3), pmf:0
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20343) wifi:pm start, type: 1, twt_start:0
+[2026-10-01T03:44:57.675Z |   20.451 s] 
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20353) wifi:pm start, type:1, aid:0x6d, trans-BSSID:<BSSID>, BSSID[5]:0xe8, mbssid(max-indicator:0, index:0), he:0
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20363) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20373) wifi:set rx beacon pti, rx_bcn_pti: 10, bcn_timeout: 25000, mt_pti: 10, mt_time: 10000
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20373) wifi:[ADDBA]TX addba request, tid:0, dialogtoken:1, bufsize:64, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x0)
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20393) wifi:[ADDBA]TX addba request, tid:7, dialogtoken:2, bufsize:64, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x20)
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20403) wifi:[ADDBA]TX addba request, tid:5, dialogtoken:3, bufsize:64, A-MSDU:0(not supported), policy:1(IMR), ssn:0(0x0)
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20413) wifi:AP's beacon interval = 102400 us, DTIM period = 1
+[2026-10-01T03:44:57.675Z |   20.451 s] I (20413) wifi:[ADDBA]RX addba response, status:0, tid:0/tb:1(0xa1), bufsize:64, batimeout:0, txa_wnd:64
+[2026-10-01T03:44:57.835Z |   20.612 s] I (20423) wifi:[ADDBA]RX addba response, status:0, tid:7/tb:1(0xa1), bufsize:64, batimeout:0, txa_wnd:64
+[2026-10-01T03:44:57.835Z |   20.612 s] I (20433) wifi:[ADDBA]RX addba response, status:0, tid:7/tb:1(0xa1), bufsize:64, batimeout:0, txa_wnd:64
+[2026-10-01T03:44:57.835Z |   20.612 s] I (20443) wifi:[ADDBA]RX addba response, status:0, tid:5/tb:1(0xa1), bufsize:64, batimeout:0, txa_wnd:64
+[2026-10-01T03:44:57.835Z |   20.612 s] I (20453) wifi:[ADDBA]RX addba response, status:0, tid:5/tb:1(0xa1), bufsize:64, batimeout:0, txa_wnd:64
+[2026-10-01T03:44:57.835Z |   20.612 s] I (20463) wifi:[ADDBA]RX addba response, status:0, tid:5/tb:1(0xa1), bufsize:64, batimeout:0, txa_wnd:64
+[2026-10-01T03:44:57.835Z |   20.612 s] I (20473) wifi:[ADDBA]RX addba response, status:0, tid:5/tb:1(0xa1), bufsize:64, batimeout:0, txa_wnd:64
+[2026-10-01T03:45:01.029Z |   23.805 s] I (23653) esp_netif_handlers: example_netif_sta ip: 192.168.1.191, mask: 255.255.255.0, gw: 192.168.1.254
+[2026-10-01T03:45:01.029Z |   23.805 s] I (23653) example_connect: Got IPv4 event: Interface "example_netif_sta" address: 192.168.1.191
+[2026-10-01T03:45:01.029Z |   23.805 s] I (23653) example_common: Connected to example_netif_sta
+[2026-10-01T03:45:01.029Z |   23.805 s] I (23663) example_common: - IPv4 address: 192.168.1.191,
+[2026-10-01T03:45:01.029Z |   23.805 s] I (23663) MQTT_SUB_THINGSPEAK: Broker: mqtt://broker.hivemq.com | canal: esp32c6-e8f60afc9114
+[2026-10-01T03:45:01.029Z |   23.805 s] I (23673) main_task: Returned from app_main()
+[2026-10-01T03:45:03.056Z |   25.833 s] W (25693) wifi:<ba-add>idx:0, ifx:0, tid:0, TAHI:0x100e8df, TALO:0xba2683e4, (ssn:1846, win:64, cur_ssn:1846), CONF:0xc0000005
+[2026-10-01T03:45:03.056Z |   25.833 s] I (25713) wifi:<ba-del>idx:0, tid:0
+[2026-10-01T03:45:08.047Z |   30.823 s] E (30673) esp-tls: couldn't get hostname for :broker.hivemq.com: getaddrinfo() returns 202, addrinfo=0
+[2026-10-01T03:45:08.047Z |   30.823 s] E (30673) transport_base: Failed to open a new connection: 32769
+[2026-10-01T03:45:08.047Z |   30.823 s] E (30673) mqtt_client: Error transport connect
+[2026-10-01T03:45:08.047Z |   30.823 s] E (30673) MQTT_SUB_THINGSPEAK: Error en el entorno MQTT
+[2026-10-01T03:45:08.047Z |   30.823 s] I (30683) MQTT_SUB_THINGSPEAK: Desconectado del Broker.
+[2026-10-01T03:45:11.794Z |   34.571 s] I (34453) wifi:[ADDBA]RX DELBA, reason:1, delete tid:0, initiator:1(originator)
+[2026-10-01T03:45:23.528Z |   46.305 s] I (46163) MQTT_SUB_THINGSPEAK: Conectado al Broker. Suscribiendose al canal...
+[2026-10-01T03:45:23.529Z |   46.305 s] I (46163) MQTT_SUB_THINGSPEAK: Suscripcion a channels/esp32c6-e8f60afc9114/subscribe enviada con exito, ID de mensaje: 50698
+[2026-10-01T03:45:23.713Z |   46.489 s] I (46363) MQTT_SUB_THINGSPEAK: Suscripcion confirmada por el Broker. Esperando datos...
+[2026-10-01T03:45:24.476Z |   47.252 s] I (47083) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:45:24.476Z |   47.252 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:24.476Z |   47.252 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:45:24Z","entry_id":7,"field1":"1","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:45:24.476Z |   47.252 s] I (47103) MQTT_SUB_THINGSPEAK: Accion: Comando de encendido detectado (field1=1) -> LED encendido
+[2026-10-01T03:45:28.482Z |   51.258 s] I (51103) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:45:28.482Z |   51.258 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:28.482Z |   51.258 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:45:28Z","entry_id":8,"field1":"0","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:45:28.482Z |   51.258 s] I (51123) MQTT_SUB_THINGSPEAK: Accion: Comando de apagado detectado (field1=0) -> LED apagado
+[2026-10-01T03:45:32.564Z |   55.340 s] I (55173) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:45:32.564Z |   55.340 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:32.564Z |   55.340 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:45:32Z","entry_id":9,"field1":"1","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:45:32.564Z |   55.340 s] I (55193) MQTT_SUB_THINGSPEAK: Accion: Comando de encendido detectado (field1=1) -> LED encendido
+[2026-10-01T03:45:36.445Z |   59.222 s] I (59063) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:45:36.446Z |   59.222 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:36.446Z |   59.222 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:45:36Z","entry_id":10,"field1":"0","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:45:36.446Z |   59.222 s] I (59083) MQTT_SUB_THINGSPEAK: Accion: Comando de apagado detectado (field1=0) -> LED apagado
+[2026-10-01T03:45:40.398Z |   63.174 s] I (63003) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:45:40.398Z |   63.174 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:40.398Z |   63.174 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:45:40Z","entry_id":11,"field1":"1","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:45:40.398Z |   63.174 s] I (63023) MQTT_SUB_THINGSPEAK: Accion: Comando de encendido detectado (field1=1) -> LED encendido
+[2026-10-01T03:45:44.437Z |   67.213 s] I (67053) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:45:44.437Z |   67.213 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:44.437Z |   67.213 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:45:44Z","entry_id":12,"field1":"0","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:45:44.437Z |   67.213 s] I (67073) MQTT_SUB_THINGSPEAK: Accion: Comando de apagado detectado (field1=0) -> LED apagado
+[2026-10-01T03:45:48.433Z |   71.209 s] I (71043) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:45:48.433Z |   71.209 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:48.433Z |   71.209 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:45:48Z","entry_id":13,"field1":"1","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:45:48.433Z |   71.209 s] I (71063) MQTT_SUB_THINGSPEAK: Accion: Comando de encendido detectado (field1=1) -> LED encendido
+[2026-10-01T03:45:52.421Z |   75.198 s] I (75043) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:45:52.421Z |   75.198 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:52.421Z |   75.198 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:45:52Z","entry_id":14,"field1":"0","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:45:52.421Z |   75.198 s] I (75063) MQTT_SUB_THINGSPEAK: Accion: Comando de apagado detectado (field1=0) -> LED apagado
+[2026-10-01T03:45:56.426Z |   79.202 s] I (79033) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:45:56.426Z |   79.202 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:56.426Z |   79.202 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:45:56Z","entry_id":15,"field1":"1","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:45:56.426Z |   79.202 s] I (79063) MQTT_SUB_THINGSPEAK: Accion: Comando de encendido detectado (field1=1) -> LED encendido
+[2026-10-01T03:46:00.429Z |   83.205 s] I (83043) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:46:00.429Z |   83.205 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:00.429Z |   83.205 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:46:00Z","entry_id":16,"field1":"0","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:46:00.429Z |   83.205 s] I (83063) MQTT_SUB_THINGSPEAK: Accion: Comando de apagado detectado (field1=0) -> LED apagado
+[2026-10-01T03:46:04.436Z |   87.212 s] I (87053) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:46:04.436Z |   87.212 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:04.436Z |   87.212 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:46:04Z","entry_id":17,"field1":"1","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:46:04.436Z |   87.212 s] I (87073) MQTT_SUB_THINGSPEAK: Accion: Comando de encendido detectado (field1=1) -> LED encendido
+[2026-10-01T03:46:08.452Z |   91.228 s] I (91073) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:46:08.452Z |   91.228 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:08.452Z |   91.228 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:46:08Z","entry_id":18,"field1":"0","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:46:08.452Z |   91.228 s] I (91093) MQTT_SUB_THINGSPEAK: Accion: Comando de apagado detectado (field1=0) -> LED apagado
+[2026-10-01T03:46:12.499Z |   95.275 s] I (95113) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:46:12.499Z |   95.275 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:12.499Z |   95.275 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:46:12Z","entry_id":19,"field1":"1","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:46:12.499Z |   95.275 s] I (95133) MQTT_SUB_THINGSPEAK: Accion: Comando de encendido detectado (field1=1) -> LED encendido
+[2026-10-01T03:46:16.403Z |   99.179 s] I (99013) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:46:16.403Z |   99.180 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:16.403Z |   99.180 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:46:16Z","entry_id":20,"field1":"0","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:46:16.403Z |   99.180 s] I (99033) MQTT_SUB_THINGSPEAK: Accion: Comando de apagado detectado (field1=0) -> LED apagado
+[2026-10-01T03:46:21.855Z |  104.631 s] I (104463) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:46:21.855Z |  104.631 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:21.855Z |  104.631 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:46:20Z","entry_id":21,"field1":"27.5","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:46:21.855Z |  104.631 s] I (104483) MQTT_SUB_THINGSPEAK: field1=27.5 no es un comando (1 o 0): el LED no cambia
+[2026-10-01T03:46:24.165Z |  106.941 s] W (106813) wifi:<ba-add>idx:0, ifx:0, tid:0, TAHI:0x100e8df, TALO:0xba2683e4, (ssn:1912, win:64, cur_ssn:1912), CONF:0xc0000005
+[2026-10-01T03:46:26.792Z |  109.569 s] I (109403) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:46:26.793Z |  109.569 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:26.793Z |  109.569 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:46:24Z","entry_id":22,"field1":"1.0","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:46:26.793Z |  109.569 s] I (109423) MQTT_SUB_THINGSPEAK: Accion: Comando de encendido detectado (field1=1.0) -> LED encendido
+[2026-10-01T03:46:28.794Z |  111.570 s] I (111403) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:46:28.794Z |  111.570 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:28.794Z |  111.570 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:46:28Z","entry_id":23,"field1":"abc","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:46:28.794Z |  111.570 s] I (111433) MQTT_SUB_THINGSPEAK: field1=abc no es un comando (1 o 0): el LED no cambia
+[2026-10-01T03:46:32.579Z |  115.355 s] I (115193) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:46:32.579Z |  115.355 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:32.579Z |  115.355 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:46:32Z","entry_id":24,"field1":null,"field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:46:32.579Z |  115.355 s] I (115213) MQTT_SUB_THINGSPEAK: Esta entrada no trae field1: no hay accion
+[2026-10-01T03:46:36.364Z |  119.140 s] I (119003) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:46:36.364Z |  119.140 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:36.364Z |  119.140 s] Datos recibidos: hola
+[2026-10-01T03:46:36.364Z |  119.140 s] I (119003) MQTT_SUB_THINGSPEAK: Esta entrada no trae field1: no hay accion
+[2026-10-01T03:46:40.667Z |  123.443 s] I (123283) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:46:40.667Z |  123.443 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:40.667Z |  123.443 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:46:40Z","entry_id":25,"field1":"0","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:46:40.667Z |  123.443 s] I (123303) MQTT_SUB_THINGSPEAK: Accion: Comando de apagado detectado (field1=0) -> LED apagado
+[2026-10-01T03:46:58.782Z |  141.558 s] I (141403) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:46:58.782Z |  141.558 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:58.782Z |  141.558 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:46:56Z","entry_id":1,"field1":"1","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:46:58.782Z |  141.558 s] I (141423) MQTT_SUB_THINGSPEAK: Accion: Comando de encendido detectado (field1=1) -> LED encendido
+[2026-10-01T03:47:04.226Z |  147.002 s] I (146833) MQTT_SUB_THINGSPEAK: NOTIFICACION RECIBIDA!
+[2026-10-01T03:47:04.226Z |  147.002 s] Topico: channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:47:04.226Z |  147.002 s] Datos recibidos: {"channel_id":"esp32c6-e8f60afc9114","created_at":"2026-10-01T03:47:03Z","entry_id":2,"field1":"0","field2":null,"field3":null,"field4":null,"field5":null,"field6":null,"field7":null,"field8":null,"latitude":null,"longitude":null,"elevation":null,"status":null}
+[2026-10-01T03:47:04.226Z |  147.003 s] I (146853) MQTT_SUB_THINGSPEAK: Accion: Comando de apagado detectado (field1=0) -> LED apagado

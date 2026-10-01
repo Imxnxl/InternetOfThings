@@ -1,0 +1,28 @@
+[2026-10-01T03:44:24.867Z] +0.8 s  conectado a mqtt://broker.hivemq.com:1883
+[2026-10-01T03:45:00.050Z] +36.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:04.051Z] +40.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:08.046Z] +44.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:12.041Z] +48.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:16.047Z] +52.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:20.050Z] +56.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:24.055Z] +60.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:28.046Z] +64.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:32.051Z] +68.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:36.055Z] +72.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:40.055Z] +76.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:44.047Z] +80.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:48.045Z] +84.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:52.048Z] +88.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:45:56.050Z] +92.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:00.042Z] +96.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:04.048Z] +100.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:08.049Z] +104.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:12.047Z] +108.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:16.043Z] +112.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:20.050Z] +116.0 s  enviado field1=27.5 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:24.041Z] +120.0 s  enviado field1=1.0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:28.046Z] +124.0 s  enviado field1=abc a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:32.050Z] +128.0 s  enviado field1=null a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:36.052Z] +132.0 s  enviado field1=raw:hola a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:40.045Z] +136.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T03:46:43.051Z] +139.0 s  fin

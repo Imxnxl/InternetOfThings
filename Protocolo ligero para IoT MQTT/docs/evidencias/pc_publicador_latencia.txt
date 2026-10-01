@@ -1,0 +1,25 @@
+[2026-10-01T04:15:22.947Z] +10.4 s  conectado a mqtt://broker.hivemq.com:1883
+[2026-10-01T04:15:23.133Z] +10.6 s  suscrito a channels/esp32c6-e8f60afc9114/#
+[2026-10-01T04:15:40.567Z] +28.0 s  channels/esp32c6-e8f60afc9114/publish  field1=30.80&status=MQTTPublish
+[2026-10-01T04:16:00.607Z] +48.0 s  channels/esp32c6-e8f60afc9114/publish  field1=28.80&status=MQTTPublish
+[2026-10-01T04:16:20.647Z] +68.1 s  channels/esp32c6-e8f60afc9114/publish  field1=27.80&status=MQTTPublish
+[2026-10-01T04:16:40.687Z] +88.1 s  channels/esp32c6-e8f60afc9114/publish  field1=27.80&status=MQTTPublish
+[2026-10-01T04:17:00.729Z] +108.2 s  channels/esp32c6-e8f60afc9114/publish  field1=27.80&status=MQTTPublish
+[2026-10-01T04:17:20.770Z] +128.2 s  channels/esp32c6-e8f60afc9114/publish  field1=27.80&status=MQTTPublish
+[2026-10-01T04:17:40.810Z] +148.3 s  channels/esp32c6-e8f60afc9114/publish  field1=26.80&status=MQTTPublish
+[2026-10-01T04:18:00.854Z] +168.3 s  channels/esp32c6-e8f60afc9114/publish  field1=26.80&status=MQTTPublish
+[2026-10-01T04:18:20.893Z] +188.3 s  channels/esp32c6-e8f60afc9114/publish  field1=27.80&status=MQTTPublish
+[2026-10-01T04:18:40.931Z] +208.4 s  channels/esp32c6-e8f60afc9114/publish  field1=26.80&status=MQTTPublish
+[2026-10-01T04:19:00.972Z] +228.4 s  channels/esp32c6-e8f60afc9114/publish  field1=26.80&status=MQTTPublish
+[2026-10-01T04:19:21.013Z] +248.5 s  channels/esp32c6-e8f60afc9114/publish  field1=26.80&status=MQTTPublish
+[2026-10-01T04:19:41.054Z] +268.5 s  channels/esp32c6-e8f60afc9114/publish  field1=26.80&status=MQTTPublish
+[2026-10-01T04:20:01.095Z] +288.5 s  channels/esp32c6-e8f60afc9114/publish  field1=26.80&status=MQTTPublish
+[2026-10-01T04:20:21.135Z] +308.6 s  channels/esp32c6-e8f60afc9114/publish  field1=26.80&status=MQTTPublish
+[2026-10-01T04:20:41.180Z] +328.6 s  channels/esp32c6-e8f60afc9114/publish  field1=26.80&status=MQTTPublish
+[2026-10-01T04:21:01.218Z] +348.7 s  channels/esp32c6-e8f60afc9114/publish  field1=26.80&status=MQTTPublish
+[2026-10-01T04:21:21.257Z] +368.7 s  channels/esp32c6-e8f60afc9114/publish  field1=27.80&status=MQTTPublish
+[2026-10-01T04:21:41.299Z] +388.7 s  channels/esp32c6-e8f60afc9114/publish  field1=26.80&status=MQTTPublish
+[2026-10-01T04:22:01.340Z] +408.8 s  channels/esp32c6-e8f60afc9114/publish  field1=26.80&status=MQTTPublish
+[2026-10-01T04:22:21.380Z] +428.8 s  channels/esp32c6-e8f60afc9114/publish  field1=26.80&status=MQTTPublish
+[2026-10-01T04:22:41.421Z] +448.9 s  channels/esp32c6-e8f60afc9114/publish  field1=26.80&status=MQTTPublish
+[2026-10-01T04:22:42.960Z] +450.4 s  fin

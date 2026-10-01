@@ -1,0 +1,22 @@
+[2026-10-01T04:12:23.280Z] +0.7 s  conectado a mqtt://broker.hivemq.com:1883
+[2026-10-01T04:13:17.631Z] +55.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:13:20.620Z] +58.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:13:23.624Z] +61.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:13:26.628Z] +64.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:13:29.630Z] +67.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:13:32.630Z] +70.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:13:35.620Z] +73.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:13:38.626Z] +76.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:13:41.631Z] +79.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:13:44.617Z] +82.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:13:47.618Z] +85.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:13:50.617Z] +88.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:13:53.623Z] +91.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:13:56.630Z] +94.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:13:59.631Z] +97.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:14:02.622Z] +100.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:14:05.624Z] +103.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:14:08.626Z] +106.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:14:11.632Z] +109.0 s  enviado field1=1 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:14:14.622Z] +112.0 s  enviado field1=0 a channels/esp32c6-e8f60afc9114/subscribe
+[2026-10-01T04:14:17.617Z] +115.0 s  fin
