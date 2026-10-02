@@ -1,0 +1,32 @@
+# Opciones de la practica. Aparecen en "idf.py menuconfig", en el menu
+# "Practica: potenciometro y PWM", y el codigo las lee como CONFIG_PRACTICA_*.
+menu "Practica: potenciometro y PWM"
+
+    config PRACTICA_TENSION_CALIBRADA
+        bool "Calcular el ciclo de trabajo con la tension calibrada"
+        default y
+        help
+            Activado (recomendado): el ciclo de trabajo se calcula con la tension
+            calibrada del cursor, 0..3300 mV -> 0..100 %. El tope de la perilla
+            lleva el LED al maximo.
+
+            Desactivado: la lectura cruda del ADC pasa tal cual al PWM. Es lo
+            mas simple, pero en el ESP32-C6 el tope de la perilla da ~3433
+            cuentas y el LED se queda en el ~84 % de su brillo.
+
+    config PRACTICA_LED_ANODO_COMUN
+        bool "El LED RGB es de anodo comun"
+        default n
+        help
+            En un LED de catodo comun (lo habitual) cada color se enciende con
+            nivel alto; en uno de anodo comun, con nivel bajo, y el ciclo de
+            trabajo se invierte.
+
+    config PRACTICA_PWM_FRECUENCIA_HZ
+        int "Frecuencia del PWM (Hz)"
+        range 100 10000
+        default 5000
+        help
+            5 kHz queda muy por encima de lo que el ojo percibe como parpadeo.
+
+endmenu

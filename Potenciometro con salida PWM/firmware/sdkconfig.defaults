@@ -1,0 +1,3 @@
+# Valores por defecto de la configuracion (idf.py menuconfig). Todo lo que no
+# aparece aqui se queda con el valor por defecto de ESP-IDF.
+CONFIG_IDF_TARGET="esp32c6"

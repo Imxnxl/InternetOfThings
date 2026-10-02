@@ -8,3 +8,9 @@ scripts/package-lock.json
 
 # Ficheros temporales de Word mientras un documento esta abierto
 ~$*
+
+# ESP-IDF: salida de la compilacion y configuracion generada (se rehace desde sdkconfig.defaults)
+firmware/build/
+firmware/managed_components/
+firmware/sdkconfig
+firmware/sdkconfig.old

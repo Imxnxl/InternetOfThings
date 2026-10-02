@@ -15,6 +15,11 @@ lectura cruda al PWM, el LED se quedaba en el **84 %** de su brillo. Por eso el 
 se calcula con la tensión calibrada de fábrica, y el tope de la perilla da el 100 %. Los detalles
 y las gráficas están en el informe.
 
+> **Firmware en ESP-IDF:** la version entregada es un proyecto ESP-IDF v6.1 en C, con `app_main()` en
+> [`firmware/main/main.c`](firmware/main/main.c). Se compila y graba con `idf.py set-target esp32c6`,
+> `idf.py build` e `idf.py -p COM5 flash monitor` desde `firmware/`. La version anterior en Arduino
+> se conserva en `firmware/potenciometro_pwm/` como referencia.
+
 > **[→ Leer el informe técnico](docs/INFORME_TECNICO.md)**
 > · También en Word: [`docs/Informe_tecnico_Potenciometro_PWM_ESP32-C6.docx`](docs/Informe_tecnico_Potenciometro_PWM_ESP32-C6.docx)
 
