@@ -104,8 +104,22 @@ En **Example Connection Configuration**, escriba **WiFi SSID** y **WiFi Password
 repita el paso en `firmware\suscriptor`.
 
 - El ESP32‑C6 solo usa redes de **2,4 GHz**.
-- Las redes con usuario y contraseña (WPA2‑Enterprise, como *eduroam*) no funcionan con
-  `example_connect()`. El punto de acceso del teléfono, en 2,4 GHz, sí funciona.
+- Las redes con usuario y contraseña (WPA2‑Enterprise, como *eduroam*) no funcionan. El punto de
+  acceso del teléfono, en 2,4 GHz, sí funciona.
+
+**Cambiar la red sin recompilar (desde el tablero, por USB).** La red de `menuconfig` es solo la
+inicial. Para pasar a otra, por ejemplo la del celular en clase:
+
+1. Conecte la placa al portátil por el conector **CH343** y cierre `idf.py monitor` si está abierto.
+2. Abra [`tablero/tablero.html`](tablero/tablero.html) en **Chrome o Edge** y, en la tarjeta
+   **Wi‑Fi de la placa**, pulse **Conectar con la placa por USB** y elija el puerto CH343.
+3. Escriba el nombre y la contraseña de la red y pulse **Guardar en la placa**. La placa la guarda
+   en su memoria (NVS), se reinicia y la tarjeta muestra «Conectada a …» con su dirección IP.
+
+La red guardada se conserva al desconectar la placa y al volver a grabar el programa. Para volver a
+la de `menuconfig`: **Consola de la placa y más opciones → Volver a la red de menuconfig**. Por
+dentro, la tarjeta envía por el puerto serie los comandos `WIFI?`, `WIFI_SET` y `WIFI_BORRAR`, que
+atiende el componente compartido [`firmware/wifi_red`](firmware/wifi_red).
 
 ### 4. Publicador
 

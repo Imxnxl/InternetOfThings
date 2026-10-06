@@ -5,8 +5,9 @@
  * ============================================================================
  *
  * QUE HACE
- *   1. Conecta la placa a la red Wi-Fi con example_connect() (componente
- *      protocol_examples_common; SSID y contrasena en "idf.py menuconfig").
+ *   1. Conecta la placa a la red Wi-Fi con wifi_red_conectar() (componente
+ *      firmware/wifi_red): usa la red guardada en la placa, que se cambia por
+ *      USB desde tablero.html, o si no hay ninguna la de "idf.py menuconfig".
  *   2. Se conecta como cliente MQTT al broker de ThingSpeak,
  *      mqtt3.thingspeak.com, por el puerto 1883 (sin cifrar).
  *   3. Cada 20 s lee el sensor de temperatura integrado en el chip (mediana
@@ -55,7 +56,7 @@
 #include "nvs_flash.h"
 #include "esp_event.h"
 #include "esp_netif.h"
-#include "protocol_examples_common.h"   // Facilita la conexion Wi-Fi rapida en ejemplos
+#include "wifi_red.h"                   // Wi-Fi: red guardada en NVS, cambiable por USB
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -254,12 +255,13 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    // Conexion Wi-Fi integrada de ESP-IDF (Configurar mediante idf.py menuconfig)
-    if (example_connect() != ESP_OK) {
-        ESP_LOGE(TAG, "No se pudo conectar al Wi-Fi. Revise el SSID y la contrasena en "
-                      "idf.py menuconfig -> Example Connection Configuration "
-                      "(solo redes de 2,4 GHz). Reinicio en 10 s...");
-        vTaskDelay(pdMS_TO_TICKS(10000));
+    // Conexion Wi-Fi: red guardada en la placa (tablero.html, por USB) o, si no
+    // hay ninguna, la de idf.py menuconfig. Ver firmware/wifi_red.
+    if (wifi_red_conectar() != ESP_OK) {
+        ESP_LOGE(TAG, "No se pudo conectar al Wi-Fi (solo redes de 2,4 GHz). Cambie la red "
+                      "desde tablero.html (tarjeta 'Wi-Fi de la placa', por USB) o en "
+                      "idf.py menuconfig. Reinicio en 20 s...");
+        vTaskDelay(pdMS_TO_TICKS(20000));
         esp_restart();
     }
 

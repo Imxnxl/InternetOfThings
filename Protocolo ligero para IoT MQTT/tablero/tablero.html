@@ -113,11 +113,11 @@
   form.conexion { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px 12px; align-items: end; }
   @media (max-width: 640px) { form.conexion { grid-template-columns: 1fr; } }
   label { display: grid; gap: 4px; font-size: 13px; color: var(--ink-2); }
-  input[type="text"] {
+  input[type="text"], input[type="password"] {
     font: inherit; font-size: 14px; color: var(--ink); background: var(--field);
     border: 1px solid var(--axis); border-radius: 8px; padding: 8px 10px; width: 100%; min-width: 0;
   }
-  input[type="text"]:focus-visible, button:focus-visible, .grafica:focus-visible, summary:focus-visible {
+  input[type="text"]:focus-visible, input[type="password"]:focus-visible, button:focus-visible, .grafica:focus-visible, summary:focus-visible {
     outline: 2px solid var(--series); outline-offset: 2px;
   }
   button {
@@ -168,6 +168,20 @@
   .reg-tipo[data-tipo="error"]::before { background: var(--critical); }
   .reg-datos { font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); overflow-wrap: anywhere; }
 
+  .wifi-acciones { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 12px 0; }
+  form.wifi { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px 12px; align-items: end; }
+  @media (max-width: 640px) { form.wifi { grid-template-columns: 1fr; } }
+  .casilla { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); margin-top: 8px; }
+  .wifi-respuesta { margin-top: 10px; font-size: 14px; display: flex; gap: 8px; align-items: baseline; }
+  .wifi-respuesta::before { content: ""; width: 8px; height: 8px; border-radius: 50%; flex: none;
+                            background: var(--muted); transform: translateY(-1px); }
+  .wifi-respuesta[data-tipo="ok"]::before { background: var(--good); }
+  .wifi-respuesta[data-tipo="conectando"]::before { background: var(--warning); }
+  .wifi-respuesta[data-tipo="error"]::before { background: var(--critical); }
+  pre.consola { font-family: var(--mono); font-size: 12px; color: var(--ink-2); background: var(--field);
+                border: 1px solid var(--grid); border-radius: 8px; padding: 8px 10px; margin: 8px 0 0;
+                max-height: 220px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
+
   .solo-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   footer { margin-top: 18px; }
 </style>
@@ -203,6 +217,37 @@
     </form>
     <p class="nota" style="margin-top:8px">La placa usa el mismo broker por TCP (<span class="mono">mqtt://broker.hivemq.com</span>).
       Tópicos: <span class="mono" id="topico-pub">—</span> y <span class="mono" id="topico-sub">—</span>.</p>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="t-wifi" style="margin-bottom:16px">
+    <h2 id="t-wifi">Wi‑Fi de la placa (por USB)</h2>
+    <p class="nota" style="margin-top:4px">Cambia la red a la que se conecta el ESP32‑C6 sin recompilar, por ejemplo
+      al punto de acceso de un celular. Conecte la placa a esta computadora por USB (conector CH343) y use Chrome o
+      Edge. La red tiene que ser de 2,4 GHz: en el celular, active la opción de compatibilidad o banda de 2,4 GHz.</p>
+    <div class="wifi-acciones">
+      <button type="button" id="btn-usb">Conectar con la placa por USB</button>
+      <button type="button" class="secundario" id="btn-wifi-ver" disabled>Ver red actual</button>
+      <span class="nota" id="usb-estado">Sin conectar</span>
+    </div>
+    <form class="wifi" id="form-wifi">
+      <label>Nombre de la red (SSID)
+        <input type="text" id="wifi-ssid" maxlength="32" autocomplete="off" spellcheck="false">
+      </label>
+      <label>Contraseña
+        <input type="password" id="wifi-clave" maxlength="63" autocomplete="off" spellcheck="false">
+      </label>
+      <button type="submit" id="btn-wifi-guardar" disabled>Guardar en la placa</button>
+    </form>
+    <label class="casilla"><input type="checkbox" id="wifi-mostrar"> Mostrar la contraseña</label>
+    <p class="wifi-respuesta" id="wifi-respuesta" role="status">La placa guarda la red y se reinicia para conectarse.
+      La contraseña no se guarda en esta página.</p>
+    <details>
+      <summary>Consola de la placa y más opciones</summary>
+      <pre class="consola" id="usb-consola" aria-live="off"></pre>
+      <div class="wifi-acciones">
+        <button type="button" class="secundario" id="btn-wifi-borrar" disabled>Volver a la red de menuconfig</button>
+      </div>
+    </details>
   </section>
 
   <div class="rejilla fila-arriba">
@@ -657,6 +702,133 @@ svgGrafica.addEventListener("keydown", (e) => {
 svgGrafica.addEventListener("blur", () => { seleccion = -1; mostrarSeleccion(); });
 new ResizeObserver(() => dibujar()).observe(svgGrafica);
 
+/* ------------------------------------------- Wi-Fi de la placa (USB) -- */
+// Habla con el firmware (componente firmware/wifi_red) por el puerto serie,
+// con la API Web Serial de Chrome y Edge. Comandos, uno por linea:
+//   WIFI?   WIFI_SET<TAB>ssid<TAB>clave   WIFI_BORRAR
+// Respuestas: lineas que empiezan por WIFI_ESTADO, WIFI_OK o WIFI_ERROR.
+
+let puerto = null, lector = null, escritor = null;
+const consolaLineas = [];
+const MAX_CONSOLA = 60;
+
+function respuestaWifi(tipo, texto) {
+  const p = $("wifi-respuesta");
+  p.dataset.tipo = tipo;
+  p.textContent = texto;
+}
+
+function actualizarUsb() {
+  const abierto = !!escritor;
+  $("btn-usb").textContent = abierto ? "Desconectar USB" : "Conectar con la placa por USB";
+  for (const id of ["btn-wifi-ver", "btn-wifi-guardar", "btn-wifi-borrar"]) $(id).disabled = !abierto;
+}
+
+function lineaUsb(linea) {
+  linea = linea.replace(/\x1b\[[0-9;]*m/g, "").replace(/\r$/, "");   // sin colores del registro
+  if (!linea.trim()) return;
+  consolaLineas.push(linea);
+  if (consolaLineas.length > MAX_CONSOLA) consolaLineas.shift();
+  const pre = $("usb-consola");
+  pre.textContent = consolaLineas.join("\n");
+  pre.scrollTop = pre.scrollHeight;
+
+  if (linea.startsWith("WIFI_ESTADO")) {
+    const ssid = (linea.match(/ssid="([^"]*)"/) || [])[1] || "";
+    const origen = (linea.match(/origen=(\S+)/) || [])[1] || "";
+    const conectado = /conectado=si/.test(linea);
+    const ip = (linea.match(/ip=(\S+)/) || [])[1] || "-";
+    const de = origen === "nvs" ? "guardada en la placa" : "de menuconfig";
+    if (conectado) respuestaWifi("ok", `Conectada a «${ssid}» (red ${de}), IP ${ip}.`);
+    else respuestaWifi("conectando", `Conectando a «${ssid}» (red ${de})…`);
+    if (ssid && !$("wifi-ssid").value) $("wifi-ssid").value = ssid;
+  } else if (linea.startsWith("WIFI_OK")) {
+    respuestaWifi("conectando", linea.slice(8));
+  } else if (linea.startsWith("WIFI_ERROR")) {
+    respuestaWifi("error", linea.slice(11));
+  }
+}
+
+async function leerUsb() {
+  const decodificador = new TextDecoder();
+  let resto = "";
+  while (puerto && puerto.readable) {
+    lector = puerto.readable.getReader();
+    try {
+      for (;;) {
+        const { value, done } = await lector.read();
+        if (done) break;
+        resto += decodificador.decode(value, { stream: true });
+        let i;
+        while ((i = resto.indexOf("\n")) >= 0) {
+          lineaUsb(resto.slice(0, i));
+          resto = resto.slice(i + 1);
+        }
+      }
+    } catch (e) {
+      if (puerto) $("usb-estado").textContent = "Se perdió la conexión USB";
+    } finally {
+      lector.releaseLock();
+      lector = null;
+    }
+    if (!escritor) break;   // cierre pedido por el usuario
+  }
+}
+
+async function enviarUsb(texto) {
+  if (!escritor) return;
+  await escritor.write(new TextEncoder().encode(texto + "\n"));
+}
+
+async function abrirUsb() {
+  if (!("serial" in navigator)) {
+    respuestaWifi("error", "Este navegador no permite usar el puerto USB. Abra el tablero en Chrome o Edge en una computadora.");
+    return;
+  }
+  try {
+    // CH343 de la placa (1a86), USB nativo del ESP32-C6 (303a) y CP210x (10c4).
+    puerto = await navigator.serial.requestPort({
+      filters: [{ usbVendorId: 0x1a86 }, { usbVendorId: 0x303a }, { usbVendorId: 0x10c4 }],
+    });
+    await puerto.open({ baudRate: 115200 });
+    // DTR y RTS desactivadas: en la placa reinician el chip o lo ponen en modo
+    // de grabacion. Asi, abrir el puerto no la toca.
+    await puerto.setSignals({ dataTerminalReady: false, requestToSend: false });
+    escritor = puerto.writable.getWriter();
+    $("usb-estado").textContent = "Placa conectada por USB";
+    actualizarUsb();
+    leerUsb();
+    await enviarUsb("WIFI?");
+  } catch (e) {
+    if (e.name !== "NotFoundError") respuestaWifi("error", "No se pudo abrir el puerto: " + e.message +
+      ". Cierre el monitor serie (idf.py monitor) si está abierto.");
+    await cerrarUsb();
+  }
+}
+
+async function cerrarUsb() {
+  const p = puerto;
+  puerto = null;
+  if (escritor) { try { escritor.releaseLock(); } catch (e) { /* ya liberado */ } escritor = null; }
+  if (lector) { try { await lector.cancel(); } catch (e) { /* ya cerrado */ } }
+  if (p) { try { await p.close(); } catch (e) { /* ya cerrado */ } }
+  $("usb-estado").textContent = "Sin conectar";
+  actualizarUsb();
+}
+
+async function guardarWifi() {
+  const ssid = $("wifi-ssid").value.trim();
+  const clave = $("wifi-clave").value;
+  const bytes = (t) => new TextEncoder().encode(t).length;
+  if (!ssid || bytes(ssid) > 32) return respuestaWifi("error", "El nombre de la red debe tener de 1 a 32 caracteres.");
+  if (clave && (bytes(clave) < 8 || bytes(clave) > 63))
+    return respuestaWifi("error", "La contraseña debe tener de 8 a 63 caracteres (déjela vacía si la red es abierta).");
+  if (/[\t\r\n]/.test(ssid + clave)) return respuestaWifi("error", "El nombre y la contraseña no pueden llevar tabuladores ni saltos de línea.");
+  respuestaWifi("conectando", `Enviando «${ssid}» a la placa…`);
+  await enviarUsb(`WIFI_SET\t${ssid}\t${clave}`);
+  $("wifi-clave").value = "";
+}
+
 /* ------------------------------------------------------------- Inicio -- */
 
 const params = new URLSearchParams(location.search);
@@ -672,6 +844,20 @@ $("form-libre").addEventListener("submit", (e) => {
   if (v) enviarComando(v);
 });
 $("btn-csv").addEventListener("click", descargarCsv);
+
+$("btn-usb").addEventListener("click", () => (escritor ? cerrarUsb() : abrirUsb()));
+$("btn-wifi-ver").addEventListener("click", () => enviarUsb("WIFI?"));
+$("form-wifi").addEventListener("submit", (e) => { e.preventDefault(); guardarWifi(); });
+$("btn-wifi-borrar").addEventListener("click", () => {
+  if (confirm("¿Olvidar la red guardada en la placa y volver a la de menuconfig?")) enviarUsb("WIFI_BORRAR");
+});
+$("wifi-mostrar").addEventListener("change", (e) => { $("wifi-clave").type = e.target.checked ? "text" : "password"; });
+if ("serial" in navigator) {
+  navigator.serial.addEventListener("disconnect", (e) => { if (e.target === puerto) cerrarUsb(); });
+} else {
+  $("usb-estado").textContent = "Requiere Chrome o Edge en una computadora";
+}
+actualizarUsb();
 
 actualizarBotones();
 dibujar();
