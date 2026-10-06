@@ -65,6 +65,7 @@
 #include "esp_log.h"
 #include "mqtt_client.h"
 #include "driver/temperature_sensor.h"  // Sensor de temperatura integrado en el chip
+#include "driver/gpio.h"                // LED RGB de estado
 
 #include "credenciales.h"               // TS_CHANNEL_ID, TS_CLIENT_ID, TS_USERNAME, TS_PASSWORD
 
@@ -103,6 +104,52 @@ static temperature_sensor_handle_t sensor_temp;
 static EventGroupHandle_t eventos_mqtt;
 #define BIT_CONECTADO  BIT0
 
+/* ------------------------------------------------- Luz de estado (LED) -- */
+// LED RGB de catodo comun (R GPIO19, G GPIO20, B GPIO21, comun a GND):
+//   azul   en espera: arrancando, conectando al Wi-Fi o al broker
+//   verde  todo bien: conectado al broker; parpadea en cada publicacion
+//   rojo   fallo: sin Wi-Fi, error del broker, conexion perdida o
+//          publicacion fallida (al reintentar vuelve a azul)
+#define PIN_LED_R  GPIO_NUM_19
+#define PIN_LED_G  GPIO_NUM_20
+#define PIN_LED_B  GPIO_NUM_21
+#define PARPADEO_MS  150
+
+typedef enum { LUZ_ESPERA, LUZ_BIEN, LUZ_FALLO } luz_t;
+static volatile luz_t luz_actual = LUZ_ESPERA;
+
+static void luz_poner(luz_t estado)
+{
+    luz_actual = estado;
+    gpio_set_level(PIN_LED_R, estado == LUZ_FALLO);
+    gpio_set_level(PIN_LED_G, estado == LUZ_BIEN);
+    gpio_set_level(PIN_LED_B, estado == LUZ_ESPERA);
+}
+
+static void luz_iniciar(void)
+{
+    gpio_config_t cfg = {
+        .pin_bit_mask = (1ULL << PIN_LED_R) | (1ULL << PIN_LED_G) | (1ULL << PIN_LED_B),
+        .mode = GPIO_MODE_OUTPUT,
+    };
+    ESP_ERROR_CHECK(gpio_config(&cfg));
+    // Fuerza de salida minima (~5 mA), por si el modulo no lleva resistencias,
+    // como en las practicas anteriores.
+    gpio_set_drive_capability(PIN_LED_R, GPIO_DRIVE_CAP_0);
+    gpio_set_drive_capability(PIN_LED_G, GPIO_DRIVE_CAP_0);
+    gpio_set_drive_capability(PIN_LED_B, GPIO_DRIVE_CAP_0);
+    luz_poner(LUZ_ESPERA);
+}
+
+// Apaga el verde un instante: "acabo de publicar". Solo si todo va bien.
+static void luz_parpadeo(void)
+{
+    if (luz_actual != LUZ_BIEN) return;
+    gpio_set_level(PIN_LED_G, 0);
+    vTaskDelay(pdMS_TO_TICKS(PARPADEO_MS));
+    if (luz_actual == LUZ_BIEN) gpio_set_level(PIN_LED_G, 1);
+}
+
 /* -------------------------------------------------------------- MQTT -- */
 
 // Detalle de un MQTT_EVENT_ERROR. Con ThingSpeak, el error tipico es que el
@@ -125,19 +172,26 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
 {
     esp_mqtt_event_handle_t event = event_data;
     switch ((esp_mqtt_event_id_t)event_id) {
+        case MQTT_EVENT_BEFORE_CONNECT:
+            luz_poner(LUZ_ESPERA);                              // (re)intentando
+            break;
+
         case MQTT_EVENT_CONNECTED:
             ESP_LOGI(TAG, "Conectado exitosamente al Broker");
+            luz_poner(LUZ_BIEN);
             xEventGroupSetBits(eventos_mqtt, BIT_CONECTADO);   // la tarea publica ya
             break;
 
         case MQTT_EVENT_DISCONNECTED:
             ESP_LOGI(TAG, "Desconectado del Broker. Intentando reconexion...");
             xEventGroupClearBits(eventos_mqtt, BIT_CONECTADO);
+            luz_poner(LUZ_FALLO);
             break;
 
         case MQTT_EVENT_ERROR:
             ESP_LOGE(TAG, "Error en el evento MQTT");
             informar_error(event->error_handle);
+            luz_poner(LUZ_FALLO);
             break;
 
         default:
@@ -189,6 +243,7 @@ static void publicar_temperatura(void)
     esp_err_t err = leer_temperatura(&temperatura);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "No se pudo leer el sensor de temperatura: %s", esp_err_to_name(err));
+        luz_poner(LUZ_FALLO);
         return;
     }
 
@@ -205,8 +260,11 @@ static void publicar_temperatura(void)
     int msg_id = esp_mqtt_client_publish(client, topic, payload, 0, 0, 0);
     if (msg_id < 0) {
         ESP_LOGE(TAG, "No se pudo publicar (%d)", msg_id);
+        luz_poner(LUZ_FALLO);
     } else {
         ESP_LOGI(TAG, "Temperatura %.2f C -> %s: %s (ID %d)", temperatura, topic, payload, msg_id);
+        luz_poner(LUZ_BIEN);
+        luz_parpadeo();
     }
 }
 
@@ -228,6 +286,7 @@ static void tarea_publicar(void *arg)
 void app_main(void)
 {
     ESP_LOGI(TAG, "Iniciando ESP32-C6...");
+    luz_iniciar();                       // azul: en espera
 
     // Sensor de temperatura integrado. Primera lectura antes de encender el
     // Wi-Fi, para comprobar que el sensor responde.
@@ -258,6 +317,7 @@ void app_main(void)
     // Conexion Wi-Fi: red guardada en la placa (tablero.html, por USB) o, si no
     // hay ninguna, la de idf.py menuconfig. Ver firmware/wifi_red.
     if (wifi_red_conectar() != ESP_OK) {
+        luz_poner(LUZ_FALLO);
         ESP_LOGE(TAG, "No se pudo conectar al Wi-Fi (solo redes de 2,4 GHz). Cambie la red "
                       "desde tablero.html (tarjeta 'Wi-Fi de la placa', por USB) o en "
                       "idf.py menuconfig. Reinicio en 20 s...");

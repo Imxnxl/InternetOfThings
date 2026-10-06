@@ -46,6 +46,7 @@ static const char *TAG = "WIFI_RED";
 static char ssid_en_uso[33];
 static const char *origen = "menuconfig";       // "nvs" o "menuconfig"
 static volatile bool conectado = false;
+static bool conectado_alguna_vez = false;
 static char ip_texto[16] = "-";
 static int reintentos = 0;
 static int ultimo_motivo = 0;
@@ -188,7 +189,14 @@ static void manejador(void *arg, esp_event_base_t base, int32_t id, void *datos)
         conectado = false;
         strcpy(ip_texto, "-");
         ultimo_motivo = d->reason;
-        if (reintentos < REINTENTOS_MAX) {
+        // Al arrancar se limita el numero de reintentos, para avisar pronto de
+        // una red mal escrita. Si ya hubo conexion, la caida es de la red y
+        // se reintenta sin limite hasta que vuelva.
+        if (conectado_alguna_vez) {
+            ESP_LOGW(TAG, "Wi-Fi perdido (motivo %d), reintentando...", d->reason);
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            esp_wifi_connect();
+        } else if (reintentos < REINTENTOS_MAX) {
             reintentos++;
             ESP_LOGW(TAG, "Wi-Fi desconectado (motivo %d), reintento %d de %d",
                      d->reason, reintentos, REINTENTOS_MAX);
@@ -200,6 +208,7 @@ static void manejador(void *arg, esp_event_base_t base, int32_t id, void *datos)
         ip_event_got_ip_t *e = datos;
         snprintf(ip_texto, sizeof(ip_texto), IPSTR, IP2STR(&e->ip_info.ip));
         conectado = true;
+        conectado_alguna_vez = true;
         reintentos = 0;
         xEventGroupSetBits(grupo, BIT_IP);
         informar_estado();
