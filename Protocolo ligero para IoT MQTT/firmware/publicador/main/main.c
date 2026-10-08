@@ -16,6 +16,20 @@
  *          topico:  channels/<CHANNEL_ID>/publish
  *          mensaje: field1=31.25&status=MQTTPublish
  *
+ *   4. Se suscribe tambien al canal y pinta el LED RGB con la temperatura que
+ *      le llega por MQTT (componente firmware/led_temperatura):
+ *          30 C o menos azul, entre 30 y 50 C verde, 50 C o mas rojo.
+ *      El color es el de la temperatura que tiene el canal despues de pasar
+ *      por el broker, no el de la lectura local.
+ *
+ * DE DONDE LE LLEGA LA TEMPERATURA AL LED
+ *   - Con ThingSpeak: del topico channels/<ID>/subscribe, donde ThingSpeak
+ *     reenvia cada dato del canal en JSON. El dispositivo MQTT necesita
+ *     "Allow Subscribe" ademas de "Allow Publish".
+ *   - Con un broker publico (credenciales.broker_publico.h) nadie reenvia
+ *     nada, asi que tambien se escucha channels/<ID>/publish. En ese caso el
+ *     tablero puede enviar temperaturas de prueba a .../subscribe.
+ *
  * CAMBIOS RESPECTO AL CODIGO DEL PDF
  *   - URI del broker. El PDF trae "mqtt://://thingspeak.com": el nombre del
  *     servidor se perdio al copiar el texto. El correcto es
@@ -57,6 +71,7 @@
 #include "esp_event.h"
 #include "esp_netif.h"
 #include "wifi_red.h"                   // Wi-Fi: red guardada en NVS, cambiable por USB
+#include "led_temperatura.h"            // LED RGB: color segun la temperatura recibida
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -65,11 +80,10 @@
 #include "esp_log.h"
 #include "mqtt_client.h"
 #include "driver/temperature_sensor.h"  // Sensor de temperatura integrado en el chip
-#include "driver/gpio.h"                // LED RGB de estado
 
 #include "credenciales.h"               // TS_CHANNEL_ID, TS_CLIENT_ID, TS_USERNAME, TS_PASSWORD
 
-static const char *TAG = "MQTT_THINGSPEAK";
+static const char *TAG = "PUBLICADOR";
 
 /* ------------------------------------------------------ Configuracion -- */
 
@@ -84,8 +98,8 @@ static const char *TAG = "MQTT_THINGSPEAK";
 
 // Rango de temperatura esperado en el chip, en grados C. Con el, el driver
 // elige la escala del sensor: -10..80 es la de menor error (< 1 C).
-#define TEMP_MIN_C  -10
-#define TEMP_MAX_C   80
+#define TEMPERATURA_MINIMA_SENSOR_C  -10
+#define TEMPERATURA_MAXIMA_SENSOR_C   80
 
 // Cada muestra es la mediana de varias lecturas seguidas (ver la cabecera).
 // Una lectura que se aleja mas de LIMITE_ANOMALIA_C de la mediana se
@@ -96,59 +110,13 @@ static const char *TAG = "MQTT_THINGSPEAK";
 
 /* ------------------------------------------------------------ Estado -- */
 
-static esp_mqtt_client_handle_t client;
-static temperature_sensor_handle_t sensor_temp;
+static esp_mqtt_client_handle_t cliente_mqtt;
+static temperature_sensor_handle_t sensor_de_temperatura;
 
 // Bit "conectado al broker". Lo ponen y lo quitan los eventos MQTT, y la
 // tarea de publicacion espera a que este puesto.
-static EventGroupHandle_t eventos_mqtt;
-#define BIT_CONECTADO  BIT0
-
-/* ------------------------------------------------- Luz de estado (LED) -- */
-// LED RGB de catodo comun (R GPIO19, G GPIO20, B GPIO21, comun a GND):
-//   azul   en espera: arrancando, conectando al Wi-Fi o al broker
-//   verde  todo bien: conectado al broker; parpadea en cada publicacion
-//   rojo   fallo: sin Wi-Fi, error del broker, conexion perdida o
-//          publicacion fallida (al reintentar vuelve a azul)
-#define PIN_LED_R  GPIO_NUM_19
-#define PIN_LED_G  GPIO_NUM_20
-#define PIN_LED_B  GPIO_NUM_21
-#define PARPADEO_MS  150
-
-typedef enum { LUZ_ESPERA, LUZ_BIEN, LUZ_FALLO } luz_t;
-static volatile luz_t luz_actual = LUZ_ESPERA;
-
-static void luz_poner(luz_t estado)
-{
-    luz_actual = estado;
-    gpio_set_level(PIN_LED_R, estado == LUZ_FALLO);
-    gpio_set_level(PIN_LED_G, estado == LUZ_BIEN);
-    gpio_set_level(PIN_LED_B, estado == LUZ_ESPERA);
-}
-
-static void luz_iniciar(void)
-{
-    gpio_config_t cfg = {
-        .pin_bit_mask = (1ULL << PIN_LED_R) | (1ULL << PIN_LED_G) | (1ULL << PIN_LED_B),
-        .mode = GPIO_MODE_OUTPUT,
-    };
-    ESP_ERROR_CHECK(gpio_config(&cfg));
-    // Fuerza de salida minima (~5 mA), por si el modulo no lleva resistencias,
-    // como en las practicas anteriores.
-    gpio_set_drive_capability(PIN_LED_R, GPIO_DRIVE_CAP_0);
-    gpio_set_drive_capability(PIN_LED_G, GPIO_DRIVE_CAP_0);
-    gpio_set_drive_capability(PIN_LED_B, GPIO_DRIVE_CAP_0);
-    luz_poner(LUZ_ESPERA);
-}
-
-// Apaga el verde un instante: "acabo de publicar". Solo si todo va bien.
-static void luz_parpadeo(void)
-{
-    if (luz_actual != LUZ_BIEN) return;
-    gpio_set_level(PIN_LED_G, 0);
-    vTaskDelay(pdMS_TO_TICKS(PARPADEO_MS));
-    if (luz_actual == LUZ_BIEN) gpio_set_level(PIN_LED_G, 1);
-}
+static EventGroupHandle_t eventos_de_conexion;
+#define BIT_CONECTADO_AL_BROKER  BIT0
 
 /* -------------------------------------------------------------- MQTT -- */
 
@@ -167,31 +135,56 @@ static void informar_error(const esp_mqtt_error_codes_t *error)
     }
 }
 
-static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
-                               int32_t event_id, void *event_data)
+// Se suscribe a los topicos por los que llega la temperatura del canal (ver
+// la cabecera). Se llama en cada conexion: con sesion limpia, el broker olvida
+// las suscripciones al desconectarse.
+static void suscribirse_al_canal(void)
 {
-    esp_mqtt_event_handle_t event = event_data;
-    switch ((esp_mqtt_event_id_t)event_id) {
-        case MQTT_EVENT_BEFORE_CONNECT:
-            luz_poner(LUZ_ESPERA);                              // (re)intentando
-            break;
+    char topico[96];
 
+    snprintf(topico, sizeof(topico), "channels/%s/subscribe", TS_CHANNEL_ID);
+    esp_mqtt_client_subscribe(cliente_mqtt, topico, 0);
+    ESP_LOGI(TAG, "Suscrito a %s", topico);
+
+    bool broker_es_thingspeak = (strstr(TS_BROKER_URI, "thingspeak") != NULL);
+    if (!broker_es_thingspeak) {
+        snprintf(topico, sizeof(topico), "channels/%s/publish", TS_CHANNEL_ID);
+        esp_mqtt_client_subscribe(cliente_mqtt, topico, 0);
+        ESP_LOGI(TAG, "Suscrito a %s (broker sin ThingSpeak: nadie reenvia los datos)", topico);
+    }
+}
+
+static void mqtt_event_handler(void *argumentos, esp_event_base_t base,
+                               int32_t id_del_evento, void *datos_del_evento)
+{
+    esp_mqtt_event_handle_t evento = datos_del_evento;
+    switch ((esp_mqtt_event_id_t)id_del_evento) {
         case MQTT_EVENT_CONNECTED:
             ESP_LOGI(TAG, "Conectado exitosamente al Broker");
-            luz_poner(LUZ_BIEN);
-            xEventGroupSetBits(eventos_mqtt, BIT_CONECTADO);   // la tarea publica ya
+            suscribirse_al_canal();
+            xEventGroupSetBits(eventos_de_conexion, BIT_CONECTADO_AL_BROKER);   // la tarea publica ya
+            break;
+
+        case MQTT_EVENT_SUBSCRIBED:
+            if (evento->error_handle->error_type == MQTT_ERROR_TYPE_SUBSCRIBE_FAILED) {
+                ESP_LOGE(TAG, "El broker rechazo la suscripcion. En ThingSpeak, el dispositivo "
+                              "MQTT necesita 'Allow Subscribe' en este canal");
+            }
+            break;
+
+        case MQTT_EVENT_DATA:
+            // Llega una temperatura del canal: el LED toma su color
+            led_temperatura_procesar_mensaje(evento->data, evento->data_len);
             break;
 
         case MQTT_EVENT_DISCONNECTED:
             ESP_LOGI(TAG, "Desconectado del Broker. Intentando reconexion...");
-            xEventGroupClearBits(eventos_mqtt, BIT_CONECTADO);
-            luz_poner(LUZ_FALLO);
+            xEventGroupClearBits(eventos_de_conexion, BIT_CONECTADO_AL_BROKER);
             break;
 
         case MQTT_EVENT_ERROR:
             ESP_LOGE(TAG, "Error en el evento MQTT");
-            informar_error(event->error_handle);
-            luz_poner(LUZ_FALLO);
+            informar_error(evento->error_handle);
             break;
 
         default:
@@ -201,34 +194,35 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
 /* ------------------------------------------------------------ Sensor -- */
 
-static int comparar_float(const void *a, const void *b)
+static int comparar_temperaturas(const void *a, const void *b)
 {
-    float x = *(const float *)a, y = *(const float *)b;
-    return (x > y) - (x < y);
+    float primera = *(const float *)a, segunda = *(const float *)b;
+    return (primera > segunda) - (primera < segunda);
 }
 
 // Lee el sensor LECTURAS_POR_MUESTRA veces y devuelve la mediana. Las
 // lecturas que fallan o que se alejan de la mediana se descartan con aviso.
-static esp_err_t leer_temperatura(float *mediana)
+static esp_err_t leer_temperatura(float *temperatura_mediana)
 {
-    float v[LECTURAS_POR_MUESTRA];
-    int n = 0;
-    for (int i = 0; i < LECTURAS_POR_MUESTRA; i++) {
-        if (temperature_sensor_get_celsius(sensor_temp, &v[n]) == ESP_OK) {
-            n++;
+    float lecturas[LECTURAS_POR_MUESTRA];
+    int lecturas_validas = 0;
+    for (int intento = 0; intento < LECTURAS_POR_MUESTRA; intento++) {
+        if (temperature_sensor_get_celsius(sensor_de_temperatura, &lecturas[lecturas_validas]) == ESP_OK) {
+            lecturas_validas++;
         }
-        if (i + 1 < LECTURAS_POR_MUESTRA) {
+        if (intento + 1 < LECTURAS_POR_MUESTRA) {
             vTaskDelay(pdMS_TO_TICKS(PAUSA_ENTRE_LECTURAS_MS));
         }
     }
-    if (n < 3) {
+    if (lecturas_validas < 3) {
         return ESP_FAIL;            // demasiadas lecturas fallidas
     }
-    qsort(v, n, sizeof(float), comparar_float);
-    *mediana = v[n / 2];
-    for (int i = 0; i < n; i++) {
-        if (fabsf(v[i] - *mediana) > LIMITE_ANOMALIA_C) {
-            ESP_LOGW(TAG, "Lectura anomala descartada: %.2f C (mediana %.2f C)", v[i], *mediana);
+    qsort(lecturas, lecturas_validas, sizeof(float), comparar_temperaturas);
+    *temperatura_mediana = lecturas[lecturas_validas / 2];
+    for (int i = 0; i < lecturas_validas; i++) {
+        if (fabsf(lecturas[i] - *temperatura_mediana) > LIMITE_ANOMALIA_C) {
+            ESP_LOGW(TAG, "Lectura anomala descartada: %.2f C (mediana %.2f C)",
+                     lecturas[i], *temperatura_mediana);
         }
     }
     return ESP_OK;
@@ -240,31 +234,27 @@ static esp_err_t leer_temperatura(float *mediana)
 static void publicar_temperatura(void)
 {
     float temperatura;
-    esp_err_t err = leer_temperatura(&temperatura);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "No se pudo leer el sensor de temperatura: %s", esp_err_to_name(err));
-        luz_poner(LUZ_FALLO);
+    esp_err_t resultado = leer_temperatura(&temperatura);
+    if (resultado != ESP_OK) {
+        ESP_LOGE(TAG, "No se pudo leer el sensor de temperatura: %s", esp_err_to_name(resultado));
         return;
     }
 
-    // Creamos el payload en formato que acepta ThingSpeak (URL encoded)
-    char payload[64];
-    snprintf(payload, sizeof(payload), "field1=%.2f&status=MQTTPublish", temperatura);
+    // Creamos el mensaje en el formato que acepta ThingSpeak (URL encoded)
+    char mensaje[64];
+    snprintf(mensaje, sizeof(mensaje), "field1=%.2f&status=MQTTPublish", temperatura);
 
     // Construimos el topico correcto
-    char topic[64];
-    snprintf(topic, sizeof(topic), "channels/%s/publish", TS_CHANNEL_ID);
+    char topico[64];
+    snprintf(topico, sizeof(topico), "channels/%s/publish", TS_CHANNEL_ID);
 
     // Publicamos: QoS=0, Retain=0 (ThingSpeak solo admite QoS 0). Con QoS 0
     // el ID devuelto es 0 si el mensaje salio y negativo si hubo un error.
-    int msg_id = esp_mqtt_client_publish(client, topic, payload, 0, 0, 0);
-    if (msg_id < 0) {
-        ESP_LOGE(TAG, "No se pudo publicar (%d)", msg_id);
-        luz_poner(LUZ_FALLO);
+    int id_del_mensaje = esp_mqtt_client_publish(cliente_mqtt, topico, mensaje, 0, 0, 0);
+    if (id_del_mensaje < 0) {
+        ESP_LOGE(TAG, "No se pudo publicar (%d)", id_del_mensaje);
     } else {
-        ESP_LOGI(TAG, "Temperatura %.2f C -> %s: %s (ID %d)", temperatura, topic, payload, msg_id);
-        luz_poner(LUZ_BIEN);
-        luz_parpadeo();
+        ESP_LOGI(TAG, "Temperatura %.2f C -> %s: %s (ID %d)", temperatura, topico, mensaje, id_del_mensaje);
     }
 }
 
@@ -272,10 +262,10 @@ static void publicar_temperatura(void)
 
 // Publica la temperatura cada PERIODO_PUBLICACION_MS. Mientras no hay
 // conexion con el broker, la tarea queda bloqueada sin gastar CPU.
-static void tarea_publicar(void *arg)
+static void tarea_publicar(void *argumentos)
 {
     for (;;) {
-        xEventGroupWaitBits(eventos_mqtt, BIT_CONECTADO, pdFALSE, pdTRUE, portMAX_DELAY);
+        xEventGroupWaitBits(eventos_de_conexion, BIT_CONECTADO_AL_BROKER, pdFALSE, pdTRUE, portMAX_DELAY);
         publicar_temperatura();
         vTaskDelay(pdMS_TO_TICKS(PERIODO_PUBLICACION_MS));
     }
@@ -286,16 +276,17 @@ static void tarea_publicar(void *arg)
 void app_main(void)
 {
     ESP_LOGI(TAG, "Iniciando ESP32-C6...");
-    luz_iniciar();                       // azul: en espera
+    led_temperatura_iniciar();           // apagado hasta recibir la primera temperatura
 
     // Sensor de temperatura integrado. Primera lectura antes de encender el
     // Wi-Fi, para comprobar que el sensor responde.
-    temperature_sensor_config_t cfg_temp = TEMPERATURE_SENSOR_CONFIG_DEFAULT(TEMP_MIN_C, TEMP_MAX_C);
-    ESP_ERROR_CHECK(temperature_sensor_install(&cfg_temp, &sensor_temp));
-    ESP_ERROR_CHECK(temperature_sensor_enable(sensor_temp));
-    float temperatura;
-    ESP_ERROR_CHECK(temperature_sensor_get_celsius(sensor_temp, &temperatura));
-    ESP_LOGI(TAG, "Sensor de temperatura listo: %.2f C (Wi-Fi apagado)", temperatura);
+    temperature_sensor_config_t configuracion_sensor =
+        TEMPERATURE_SENSOR_CONFIG_DEFAULT(TEMPERATURA_MINIMA_SENSOR_C, TEMPERATURA_MAXIMA_SENSOR_C);
+    ESP_ERROR_CHECK(temperature_sensor_install(&configuracion_sensor, &sensor_de_temperatura));
+    ESP_ERROR_CHECK(temperature_sensor_enable(sensor_de_temperatura));
+    float temperatura_inicial;
+    ESP_ERROR_CHECK(temperature_sensor_get_celsius(sensor_de_temperatura, &temperatura_inicial));
+    ESP_LOGI(TAG, "Sensor de temperatura listo: %.2f C (Wi-Fi apagado)", temperatura_inicial);
 
     if (strncmp(TS_CHANNEL_ID, "TU_", 3) == 0 || strncmp(TS_CLIENT_ID, "TU_", 3) == 0) {
         ESP_LOGW(TAG, "credenciales.h aun tiene los valores de la plantilla: "
@@ -303,12 +294,12 @@ void app_main(void)
     }
 
     // Inicializar memoria NVS requerida por el Wi-Fi
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    esp_err_t resultado = nvs_flash_init();
+    if (resultado == ESP_ERR_NVS_NO_FREE_PAGES || resultado == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
-        ret = nvs_flash_init();
+        resultado = nvs_flash_init();
     }
-    ESP_ERROR_CHECK(ret);
+    ESP_ERROR_CHECK(resultado);
 
     // Inicializar interfaz de red y bucle de eventos
     ESP_ERROR_CHECK(esp_netif_init());
@@ -317,7 +308,6 @@ void app_main(void)
     // Conexion Wi-Fi: red guardada en la placa (tablero.html, por USB) o, si no
     // hay ninguna, la de idf.py menuconfig. Ver firmware/wifi_red.
     if (wifi_red_conectar() != ESP_OK) {
-        luz_poner(LUZ_FALLO);
         ESP_LOGE(TAG, "No se pudo conectar al Wi-Fi (solo redes de 2,4 GHz). Cambie la red "
                       "desde tablero.html (tarjeta 'Wi-Fi de la placa', por USB) o en "
                       "idf.py menuconfig. Reinicio en 20 s...");
@@ -327,17 +317,17 @@ void app_main(void)
 
     // Configuracion del cliente MQTT de Espressif
     ESP_LOGI(TAG, "Broker: %s | canal: %s", TS_BROKER_URI, TS_CHANNEL_ID);
-    esp_mqtt_client_config_t mqtt_cfg = {
+    esp_mqtt_client_config_t configuracion_mqtt = {
         .broker.address.uri = TS_BROKER_URI,
         .credentials.client_id = TS_CLIENT_ID,
         .credentials.username = TS_USERNAME,
         .credentials.authentication.password = TS_PASSWORD,
     };
 
-    eventos_mqtt = xEventGroupCreate();
-    client = esp_mqtt_client_init(&mqtt_cfg);
-    esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
-    esp_mqtt_client_start(client);
+    eventos_de_conexion = xEventGroupCreate();
+    cliente_mqtt = esp_mqtt_client_init(&configuracion_mqtt);
+    esp_mqtt_client_register_event(cliente_mqtt, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
+    esp_mqtt_client_start(cliente_mqtt);
 
     // Tarea que publica la temperatura periodicamente
     xTaskCreate(tarea_publicar, "publicar", 4096, NULL, 5, NULL);

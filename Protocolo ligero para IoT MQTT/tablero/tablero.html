@@ -11,7 +11,9 @@
   - Se suscribe a channels/<canal>/publish: dibuja la temperatura que publica
     el ESP32-C6 (mensajes "field1=31.80&status=MQTTPublish").
   - Publica en channels/<canal>/subscribe el JSON que enviaria ThingSpeak
-    ({"field1":"1", ...}): es lo que recibe el programa suscriptor.
+    ({"field1":"40", ...}) con una temperatura de prueba: la placa pinta su
+    LED RGB con la temperatura que le llega (30 C o menos azul, entre 30 y
+    50 C verde, 50 C o mas rojo), y aqui se muestra el color que deberia tener.
 
   Se abre con doble clic (no necesita servidor). Usa MQTT sobre WebSocket
   seguro (wss) y la biblioteca MQTT.js desde una CDN, asi que necesita
@@ -137,6 +139,12 @@
   .led-botones { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 10px; }
   .led-libre { display: flex; gap: 8px; align-items: end; }
   .led-libre label { flex: 1; }
+  .led-estado { display: flex; align-items: center; gap: 10px; margin: 12px 0 4px; font-size: 15px; }
+  .led-punto { width: 18px; height: 18px; border-radius: 50%; flex: none; background: var(--grid);
+               box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--axis); }
+  .led-punto[data-color="azul"] { background: #2a78d6; }
+  .led-punto[data-color="verde"] { background: #0ca30c; }
+  .led-punto[data-color="rojo"] { background: #d03b3b; }
 
   .grafica-caja { position: relative; margin-top: 10px; }
   .grafica { display: block; width: 100%; height: 300px; touch-action: pan-y; }
@@ -191,8 +199,8 @@
   <div class="cabecera">
     <div>
       <h1>Tablero MQTT del ESP32‑C6</h1>
-      <p class="sub">Hace de página del canal: dibuja la temperatura que publica la placa y envía comandos al
-        suscriptor, todo a través de un broker MQTT público.</p>
+      <p class="sub">Hace de página del canal: dibuja la temperatura que publica la placa y muestra el color de su
+        LED, todo a través de un broker MQTT público.</p>
     </div>
     <span class="estado" id="estado" data-estado="conectando" role="status">
       <svg class="icono" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="currentColor"/></svg>
@@ -263,20 +271,25 @@
     </section>
 
     <section class="tarjeta" aria-labelledby="t-led">
-      <h2 id="t-led">LED del suscriptor (GPIO20)</h2>
-      <p class="nota" style="margin-top:4px">Publica en <span class="mono" id="topico-led">—</span> el JSON que enviaría
-        ThingSpeak. Con el programa suscriptor en la placa, el LED responde al instante.</p>
+      <h2 id="t-led">LED RGB de temperatura</h2>
+      <p class="nota" style="margin-top:4px">La placa pinta el LED con la temperatura que le llega por MQTT:
+        30 °C o menos <b>azul</b>, entre 30 y 50 °C <b>verde</b>, 50 °C o más <b>rojo</b>.</p>
+      <div class="led-estado"><span class="led-punto" id="led-punto" data-color="apagado"></span>
+        <span id="led-color">Apagado: todavía no ha llegado ninguna temperatura</span></div>
+      <p class="nota">Para probar los colores, envíe una temperatura simulada a <span class="mono" id="topico-led">—</span>.
+        La siguiente lectura real (cada 20 s) vuelve a poner el color de la temperatura del chip.</p>
       <div class="led-botones">
-        <button type="button" id="btn-on">Encender (field1 = 1)</button>
-        <button type="button" class="secundario" id="btn-off">Apagar (field1 = 0)</button>
+        <button type="button" class="secundario" data-temperatura="25">25 °C · azul</button>
+        <button type="button" class="secundario" data-temperatura="40">40 °C · verde</button>
+        <button type="button" class="secundario" data-temperatura="55">55 °C · rojo</button>
       </div>
       <form class="led-libre" id="form-libre">
-        <label>Otro valor de field1
-          <input type="text" id="valor-libre" value="27.5" autocomplete="off" spellcheck="false">
+        <label>Otra temperatura (°C)
+          <input type="text" id="valor-libre" value="35" inputmode="decimal" autocomplete="off" spellcheck="false">
         </label>
         <button type="submit" class="secundario" id="btn-libre">Enviar</button>
       </form>
-      <p class="nota" id="led-ultimo" style="margin-top:10px">Todavía no se ha enviado ningún comando.</p>
+      <p class="nota" id="led-ultimo" style="margin-top:10px">Todavía no se ha enviado ninguna temperatura de prueba.</p>
     </section>
   </div>
 
@@ -456,20 +469,46 @@ function desconectar() {
 
 function actualizarBotones() {
   const listo = !!(cliente && cliente.connected);
-  for (const id of ["btn-on", "btn-off", "btn-libre"]) $(id).disabled = !listo;
+  $("btn-libre").disabled = !listo;
+  document.querySelectorAll("[data-temperatura]").forEach((b) => { b.disabled = !listo; });
 }
 
 /* --------------------------------------------------------- Mensajes -- */
 
+// Los mismos limites que firmware/led_temperatura (led_temperatura.c)
+const TEMPERATURA_MAXIMA_AZUL_C = 30;
+const TEMPERATURA_MINIMA_ROJO_C = 50;
+
+function colorDelLed(temperatura) {
+  if (temperatura <= TEMPERATURA_MAXIMA_AZUL_C) return "azul";
+  if (temperatura >= TEMPERATURA_MINIMA_ROJO_C) return "rojo";
+  return "verde";
+}
+
+// Color que deberia tener el LED de la placa: el de la ultima temperatura que
+// paso por el canal, real (.../publish) o de prueba (.../subscribe).
+function mostrarColorDelLed(temperatura, origen) {
+  const color = colorDelLed(temperatura);
+  $("led-punto").dataset.color = color;
+  $("led-color").textContent = `LED ${color}: ${numero.format(temperatura)} °C (${origen}, ${hora.format(new Date())})`;
+}
+
 function recibir(topico, datos) {
   const texto = datos.toString();
   registrar("in", topico, texto);
-  if (topico !== topicos.pub) return;
 
-  // "field1=31.80&status=MQTTPublish" (formato de ThingSpeak)
-  const valor = Number.parseFloat(new URLSearchParams(texto).get("field1"));
-  if (Number.isFinite(valor) && valor >= RANGO_VALIDO[0] && valor <= RANGO_VALIDO[1]) {
-    agregarLectura(Date.now(), valor);
+  if (topico === topicos.pub) {
+    // "field1=31.80&status=MQTTPublish" (formato de ThingSpeak)
+    const valor = Number.parseFloat(new URLSearchParams(texto).get("field1"));
+    if (Number.isFinite(valor) && valor >= RANGO_VALIDO[0] && valor <= RANGO_VALIDO[1]) {
+      agregarLectura(Date.now(), valor);
+      mostrarColorDelLed(valor, "lectura real");
+    }
+  } else if (topico === topicos.sub) {
+    // {"field1":"40", ...}: temperatura de prueba (de este tablero o de otro)
+    let valor = NaN;
+    try { valor = Number.parseFloat(JSON.parse(texto).field1); } catch (e) { /* no es JSON */ }
+    if (Number.isFinite(valor) && valor >= -50 && valor <= 150) mostrarColorDelLed(valor, "prueba");
   }
 }
 
@@ -492,7 +531,7 @@ function enviarComando(valor) {
       registrar("error", topicos.sub, "No se pudo enviar: " + err.message);
       return;
     }
-    $("led-ultimo").textContent = `Último comando: field1 = ${valor}, enviado a las ${hora.format(new Date())}.`;
+    $("led-ultimo").textContent = `Última temperatura de prueba: ${numero.format(Number(valor))} °C, enviada a las ${hora.format(new Date())}.`;
   });
   registrar("out", topicos.sub, mensaje);
 }
@@ -836,12 +875,17 @@ $("broker").value = params.get("broker") || almacen.leer("tablero.broker") || PR
 $("canal").value = params.get("canal") || almacen.leer("tablero.canal") || PREDETERMINADO.canal;
 
 $("form-conexion").addEventListener("submit", (e) => { e.preventDefault(); conectar(); });
-$("btn-on").addEventListener("click", () => enviarComando(1));
-$("btn-off").addEventListener("click", () => enviarComando(0));
+document.querySelectorAll("[data-temperatura]").forEach((boton) => {
+  boton.addEventListener("click", () => enviarComando(Number(boton.dataset.temperatura)));
+});
 $("form-libre").addEventListener("submit", (e) => {
   e.preventDefault();
-  const v = $("valor-libre").value.trim();
-  if (v) enviarComando(v);
+  const v = $("valor-libre").value.trim().replace(",", ".");    // 35,5 -> 35.5
+  if (!Number.isFinite(Number(v)) || v === "") {
+    $("led-ultimo").textContent = "Escriba una temperatura en °C, por ejemplo 35 o 35,5.";
+    return;
+  }
+  enviarComando(v);
 });
 $("btn-csv").addEventListener("click", descargarCsv);
 

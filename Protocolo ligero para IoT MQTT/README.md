@@ -11,9 +11,9 @@ canal. El firmware es el mismo: pasar a ThingSpeak es cambiar un archivo de cred
 
 | Programa | Papel | Qué hace |
 |---|---|---|
-| [`firmware/publicador/`](firmware/publicador) | Publicador (Ejercicio 1 y punto 2.1) | Lee el **sensor de temperatura integrado** del ESP32‑C6 (mediana de 5 lecturas) y publica el valor cada 20 s en el campo 1 (`field1`) del canal |
-| [`firmware/suscriptor/`](firmware/suscriptor) | Suscriptor | Se suscribe al canal y recibe al instante cada dato nuevo, sin consultar periódicamente. Con `field1 = 1` enciende un LED y con `field1 = 0` lo apaga |
-| [`tablero/tablero.html`](tablero/tablero.html) | Página del canal | Dibuja la temperatura y envía los comandos del LED. Se abre con doble clic |
+| [`firmware/publicador/`](firmware/publicador) | Publicador (Ejercicio 1 y punto 2.1) | Lee el **sensor de temperatura integrado** del ESP32‑C6 (mediana de 5 lecturas) y publica el valor cada 20 s en el campo 1 (`field1`) del canal. Además se suscribe al canal y pinta el **LED RGB** con la temperatura que le llega |
+| [`firmware/suscriptor/`](firmware/suscriptor) | Suscriptor | Se suscribe al canal y recibe al instante cada dato nuevo, sin consultar periódicamente. `field1` es la temperatura, y el **LED RGB** toma su color |
+| [`tablero/tablero.html`](tablero/tablero.html) | Página del canal | Dibuja la temperatura, muestra el color que debe tener el LED y envía temperaturas de prueba. Se abre con doble clic |
 
 ![Quién publica y quién se suscribe](docs/evidencias/fig1_arquitectura.png)
 
@@ -31,6 +31,30 @@ canal. El firmware es el mismo: pasar a ThingSpeak es cambiar un archivo de cred
   del que se recuperó solo) se perdieron: con QoS 0, el broker no los guarda.
 - **MQTT frente a HTTP.** MQTT gasta 72 bytes por lectura; la petición HTTP equivalente a
   ThingSpeak, 623.
+
+### LED RGB de temperatura
+
+El LED RGB no indica el estado de la conexión: muestra con un color la **temperatura que llega por
+MQTT al tópico del suscriptor**, es decir, la del canal después de pasar por el broker.
+
+| Temperatura recibida | Color del LED |
+|---|---|
+| 30 °C o menos | **Azul** |
+| Más de 30 y menos de 50 °C (por ejemplo, 40 °C) | **Verde** |
+| 50 °C o más | **Rojo** |
+
+- Hasta que llega la primera temperatura, el LED está apagado.
+- Lo hacen los dos programas, con el componente compartido
+  [`firmware/led_temperatura`](firmware/led_temperatura); los límites son las constantes
+  `TEMPERATURA_MAXIMA_AZUL_C` y `TEMPERATURA_MINIMA_ROJO_C` de `led_temperatura.c`.
+- La temperatura sale de `field1`. Con ThingSpeak llega por `channels/<ID>/subscribe`, donde
+  ThingSpeak reenvía cada dato del canal. Con el broker público nadie reenvía nada, así que la
+  placa escucha también `channels/<ID>/publish`. Con una sola placa con el publicador, el LED
+  muestra su propia temperatura después de dar la vuelta por el broker.
+- El chip marca 27–32 °C, así que con lecturas reales el LED queda azul o verde. Para ver los tres
+  colores, el tablero envía temperaturas de prueba (25, 40 y 55 °C). La siguiente lectura real
+  (cada 20 s) vuelve a poner el color de la temperatura del chip.
+- Conexiones (módulo de cátodo común): **R → GPIO19, G → GPIO20, B → GPIO21, común → GND**.
 
 El enunciado del profesor (`Practica.pdf`) no se sube al repositorio: conserva la titularidad de su
 autor, como en las prácticas anteriores. Si lo tiene, colóquelo en esta carpeta; el informe resume
@@ -133,7 +157,8 @@ idf.py -p COM5 build flash monitor
 
 Para salir del monitor: `Ctrl + ]`. Abra [`tablero/tablero.html`](tablero/tablero.html) con doble
 clic: se conecta solo y en menos de 20 s aparece la primera lectura. Con ThingSpeak, la gráfica
-está en la pestaña *Private View* del canal.
+está en la pestaña *Private View* del canal. El LED RGB toma el color de cada temperatura que
+vuelve del broker.
 
 ### 5. Suscriptor
 
@@ -142,13 +167,13 @@ cd firmware\suscriptor
 idf.py -p COM5 build flash monitor
 ```
 
-Con el broker público, use los botones **Encender** y **Apagar** del tablero. Con ThingSpeak,
-envíe el dato desde el navegador:
-`https://api.thingspeak.com/update?api_key=<WRITE_API_KEY>&field1=1` (con al menos 15 s entre
+Con el broker público, use los botones **25 °C**, **40 °C** y **55 °C** del tablero (o «Otra
+temperatura»): el LED se pone azul, verde o rojo. Con ThingSpeak, envíe el dato desde el navegador:
+`https://api.thingspeak.com/update?api_key=<WRITE_API_KEY>&field1=40` (con al menos 15 s entre
 dos envíos).
 
-LED opcional: el canal **G** del módulo RGB de las prácticas anteriores en **GPIO20** y su común
-en **GND**. Sin LED, la acción se ve igual en el monitor.
+El LED es el módulo RGB de las prácticas anteriores: **R → GPIO19, G → GPIO20, B → GPIO21,
+común → GND**. Sin LED, el color se ve igual en el monitor (`LED_TEMPERATURA: ... -> LED verde`).
 
 ---
 
@@ -160,19 +185,19 @@ en **GND**. Sin LED, la acción se ve igual en el monitor.
    en Android, banda de 2,4 GHz) y escriba su nombre y contraseña con `idf.py menuconfig` en los
    **dos** proyectos (paso 3). La red de la escuela suele pedir usuario y no sirve.
 2. Compruebe que el portátil también tiene internet: el tablero lo necesita.
-3. Lleve conectado el módulo LED (G en GPIO20, común en GND).
+3. Lleve conectado el módulo LED RGB (R en GPIO19, G en GPIO20, B en GPIO21, común en GND).
 
 **En la clase (unos 5 minutos)**
 
 1. `. C:\esp\v6.1\esp-idf\export.ps1`
 2. **Publicador:** `cd firmware\publicador` y `idf.py -p COM5 flash monitor`. Muestre el
    arranque: Wi‑Fi, IP, «Conectado exitosamente al Broker» y una publicación cada 20 s.
-3. Abra el **tablero**: la gráfica se llena con cada publicación. Deje la pestaña visible.
-4. **Suscriptor:** `cd ..\suscriptor` y `idf.py -p COM5 flash monitor`. Pulse **Encender** y
-   **Apagar** en el tablero: el LED responde y el monitor muestra «NOTIFICACION RECIBIDA!» con el
-   JSON recibido.
-5. Si queda tiempo, envíe `27.5` desde «Otro valor de field1»: llega, pero no es un comando y el
-   LED no cambia.
+3. Abra el **tablero**: la gráfica se llena con cada publicación y el LED se pone azul (o verde,
+   si el chip pasa de 30 °C). Deje la pestaña visible.
+4. Pulse **40 °C** y **55 °C** en el tablero: el LED se pone verde y rojo, y la siguiente lectura
+   real lo devuelve a su color.
+5. **Suscriptor:** `cd ..\suscriptor` y `idf.py -p COM5 flash monitor`. Repita los botones: el
+   monitor muestra «NOTIFICACION RECIBIDA!», el JSON recibido y el color del LED.
 
 **Preguntas probables**
 
@@ -184,6 +209,7 @@ en **GND**. Sin LED, la acción se ve igual en el monitor.
 | ¿Por qué el sensor marca más que el ambiente? | Mide el silicio del chip, que se calienta con la radio. Espressif no lo recomienda para temperatura ambiente |
 | ¿Por qué tarda ~0,2 s? | El broker está en Fráncfort: es el viaje de ida y vuelta por internet |
 | ¿Es seguro? | No: el broker público no pide credenciales y el puerto 1883 no cifra. Un sistema real usaría TLS (8883) y credenciales |
+| ¿De dónde saca el LED la temperatura? | De MQTT, no del sensor: de `field1` de los mensajes que llegan al tópico del suscriptor. Por eso muestra lo que tiene el canal, venga de la placa o del tablero |
 | ¿Por qué MQTT y no HTTP? | Conexión abierta, 72 bytes por lectura frente a 623, y los comandos llegan sin que la placa pregunte |
 
 ---
@@ -198,6 +224,8 @@ en **GND**. Sin LED, la acción se ve igual en el monitor.
 | `couldn't get hostname for :broker.hivemq.com` | Falló la consulta DNS | Nada: el cliente reintenta a los 10 s |
 | `El broker rechazo la conexion (codigo 5)` | Client ID, Username o Password de MQTT incorrectos (ThingSpeak) | Revise `firmware/credenciales.h` |
 | `El broker rechazo la suscripcion` | El dispositivo MQTT no tiene *Allow Subscribe* en el canal | Edite el dispositivo en *Devices → MQTT* |
+| El LED no se enciende | Aún no llegó ninguna temperatura, o el módulo está mal conectado | Espere la primera publicación (20 s) o pulse un botón del tablero; revise R‑GPIO19, G‑GPIO20, B‑GPIO21 y común a GND |
+| El LED muestra colores al revés (por ejemplo, todo encendido menos un color) | El módulo es de ánodo común | Conecte el común a 3V3 e invierta los niveles en `encender_color()` de `led_temperatura.c` |
 | `Lectura anomala descartada` | Una de las 5 lecturas del sensor salió muy desviada | Nada: se publica la mediana |
 | `W spi_flash: Detected size(16384k) larger than the size in the binary image header(2048k)` | La placa tiene 16 MB de flash y el programa se configura para 2 MB | Solo es un aviso: 2 MB funcionan en cualquier placa ESP32‑C6 |
 | El tablero dice «Sin conexión» | Sin internet, la red bloquea el puerto 8884, o el navegador congeló la pestaña oculta | Pulse «Conectar»; si sigue, pruebe `wss://broker.emqx.io:8084/mqtt` (y `mqtt://broker.emqx.io` en `credenciales.h`) |
@@ -228,7 +256,9 @@ profesor cree el canal y un dispositivo MQTT y le pase las credenciales.
 │   │       ├── main.c
 │   │       ├── CMakeLists.txt
 │   │       └── idf_component.yml       Lo crea idf.py add-dependency espressif/mqtt
-│   └── suscriptor/                     Proyecto ESP-IDF del suscriptor (misma estructura)
+│   ├── suscriptor/                     Proyecto ESP-IDF del suscriptor (misma estructura)
+│   ├── led_temperatura/                Componente compartido: color del LED RGB segun la temperatura
+│   └── wifi_red/                       Componente compartido: red Wi-Fi guardada, cambiable por USB
 ├── tablero/
 │   └── tablero.html                    Pagina del canal para el broker publico
 ├── docs/
